@@ -1,7 +1,7 @@
 <template>
   <!-- <header> -->
   <div class="ml-10 flex items-baseline space-x-4">
-    <RouterLink
+    <!-- <RouterLink
       to="/"
       @click="activeButton = 'home'"
       :class="[
@@ -12,19 +12,19 @@
   ]"
     >
       Home
-    </RouterLink>
+    </RouterLink> -->
 
     <RouterLink
-      to="/about"
-      @click="activeButton = 'about'"
+      to="/"
+      @click="activeButton = 'dashboard'"
       :class="[
     'block rounded-md px-3 py-2 text-base font-medium',
-    activeButton === 'about'
+    activeButton === 'dashboard'
       ? 'bg-gray-900 text-white'
       : 'text-gray-300 hover:bg-gray-700 hover:text-white'
   ]"
     >
-      About
+      dashboard
     </RouterLink>
 
     <RouterLink
@@ -52,12 +52,50 @@
     >
       Job List
     </RouterLink>
+
+    <RouterLink
+      to="/about"
+      @click="activeButton = 'about'"
+      :class="[
+    'block rounded-md px-3 py-2 text-base font-medium',
+    activeButton === 'about'
+      ? 'bg-gray-900 text-white'
+      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+  ]"
+    >
+      About
+    </RouterLink>
+
+    <RouterLink
+      to="/recruitment/offers/list"
+      @click="activeButton = 'recruitment-list'"
+      :class="[
+    'block rounded-md px-3 py-2 text-base font-medium',
+    activeButton === 'recruitment-list'
+      ? 'bg-gray-900 text-white'
+      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+  ]"
+    >
+      recruitment
+    </RouterLink>
+    <RouterLink
+      to="/recruitment/candidates/"
+      @click="activeButton = 'candidates'"
+      :class="[
+    'block rounded-md px-3 py-2 text-base font-medium',
+    activeButton === 'candidates'
+      ? 'bg-gray-900 text-white'
+      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+  ]"
+    >
+      candidates
+    </RouterLink>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-const activeButton = ref('home');
+const activeButton = ref('dashboard');
 
 import { RouterLink } from 'vue-router';
 </script>

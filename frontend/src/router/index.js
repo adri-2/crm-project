@@ -1,18 +1,23 @@
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "../views/HomeView.vue";
+// import HomeView from "../views/HomeView.vue";
 import UserList from "@/views/users/UserList.vue";
 import UserForm from "@/views/users/UserForm.vue";
 import JobForm from "@/views/jobs/JobForm.vue";
 import JobList from "@/views/jobs/JobList.vue";
+import DashBoard from "@/views/DashBoard.vue";
+import JobOfferForm from "@/views/recruitment/JobOfferForm.vue";
+import JobOfferList from "@/views/recruitment/JobOfferList.vue";
+import CandidateList from "@/views/recruitment/CandidateList.vue";
+import CandidatForm from "@/views/recruitment/CandidatForm.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: "/",
-      name: "home",
-      component: HomeView,
-    },
+    // {
+    //   path: "/",
+    //   name: "home",
+    //   component: HomeView,
+    // },
     {
       path: "/about",
       name: "about",
@@ -40,6 +45,31 @@ const router = createRouter({
       path: "/job/list",
       name: "job-list",
       component: JobList,
+    },
+    {
+      path: "/",
+      name: "dashboard",
+      component: DashBoard,
+    },
+    {
+      path: "/recruitment/offers/new",
+      name: "recruitment-offers-new",
+      component: JobOfferForm,
+    },
+    {
+      path: "/recruitment/offers/list",
+      name: "recruitment-offers-list",
+      component: JobOfferList,
+    },
+    {
+      path: "/recruitment/candidates",
+      name: "recruitment-candidates",
+      component: CandidateList,
+    },
+    {
+      path: "/recruitment/candidates/new",
+      name: "recruitment-candidates-new",
+      component: CandidatForm,
     },
   ],
 });
