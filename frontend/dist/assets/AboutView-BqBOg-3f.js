@@ -1,0 +1,1 @@
+import{_ as s,c as o,a as t,o as a}from"./index-dV-YMj_K.js";const n={},r={class:"bg-gray-500"};function c(_,e){return a(),o("div",r,e[0]||(e[0]=[t("h1",null,"This is an about page",-1)]))}const l=s(n,[["render",c]]);export{l as default};
