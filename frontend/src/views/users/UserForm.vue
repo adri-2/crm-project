@@ -6,6 +6,7 @@
         class="w-34 h-34 rounded bg-gray-100 flex items-center justify-center text-gray-400 text-2xl"
       >
         <img src="../../../public/placeholder phote.png" alt="" srcset="" />
+        <!-- <input type="file" placeholder="clik" /> -->
       </div>
       <div class="flex-1">
         <!-- name user-->
@@ -93,31 +94,37 @@
     <!-- Onglets -->
     <div class="border-b border-gray-200 mb-4">
       <nav class="flex space-x-4 text-sm font-medium">
-        <a
-          href="#"
-          class="px-3 py-2 border-b-2 border-transparent hover:border-purple-500 hover:text-purple-600"
-          >CV</a
-        >
-        <!-- <a
+        <div>
+          <a
+            href="#"
+            class="px-3 py-2 border-b-2 border-transparent hover:border-purple-500 hover:text-purple-600"
+            >CV</a
+          >
+          <!-- <a
           href="#"
           class="px-3 py-2 border-b-2 border-transparent hover:border-purple-500 hover:text-purple-600"
           >Informations professionnelles</a
         > -->
-        <a
-          href="#"
-          class="px-3 py-2 border-b-2 border-transparent hover:border-purple-500 text-purple-600"
-          >Informations privées</a
-        >
-        <a
-          href="#"
-          class="px-3 py-2 border-b-2 border-transparent hover:border-purple-500 hover:text-purple-600"
-          >Paie</a
-        >
-        <!-- <a
+        </div>
+        <div class="">
+          <a
+            href="#"
+            class="px-3 py-2 border-b-2 border-transparent hover:border-purple-500 text-purple-600"
+            >Informations privées</a
+          >
+        </div>
+        <div>
+          <a
+            href="#"
+            class="px-3 py-2 border-b-2 border-transparent hover:border-purple-500 hover:text-purple-600"
+            >Paie</a
+          >
+          <!-- <a
           href="#"
           class="px-3 py-2 border-b-2 border-purple-500 text-purple-600"
           >Paramètres</a
         > -->
+        </div>
       </nav>
     </div>
 
@@ -152,8 +159,8 @@
           Éducation
         </h3>
         <p>
-          <strong>Niveau du certificat</strong>
-          <span class="text-blue-500 cursor-pointer"> ?</span>
+          <strong>Niveau scolaire</strong>
+          <span class="text-blue-500 cursor-pointer"> ? </span>
           <input
             type="text"
             class="border-0 border-b-2 border-blue-500 focus:border-blue-700 focus:outline-none w-80"
@@ -161,7 +168,7 @@
         </p>
         <p class="mt-2">
           <strong>Champ d'étude</strong>
-          <span class="text-blue-500 cursor-pointer">?</span>
+          <span class="text-blue-500 cursor-pointer"> ? </span>
           <input
             type="text"
             class="border-0 border-b-2 border-blue-500 focus:border-blue-700 focus:outline-none w-80"
@@ -169,7 +176,7 @@
         </p>
         <p class="mt-2">
           <strong>Établissement scolaire</strong>
-          <span class="text-blue-500 cursor-pointer">?</span>
+          <span class="text-blue-500 cursor-pointer"> ? </span>
           <input
             type="text"
             class="border-0 border-b-2 border-blue-500 focus:border-blue-700 focus:outline-none w-80"
@@ -177,6 +184,40 @@
         </p>
       </div>
     </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3
+          class="text-sm font-semibold text-gray-600  border-gray-200 border-b pb-2 mb-4"
+        >
+          CV
+        </h3>
+        <p>
+          <strong>Cv</strong>
+          <span class="text-blue-500 cursor-pointer">?</span>
+          <input
+            type="file"
+            class="border-0 border-b-2 border-blue-500 focus:border-blue-700 focus:outline-none w-80"
+          />
+        </p>
+        <p class="mt-2">
+          <strong>Competences</strong>
+          <input
+            type=""
+            class="border-0 border-b-2 border-blue-500 focus:border-blue-700 focus:outline-none w-80"
+          />
+        </p>
+        <p>
+          <strong>Certification</strong>
+          <span class="text-blue-500 cursor-pointer"> ? </span>
+          <input
+            type="text"
+            class="border-0 border-b-2 border-blue-500 focus:border-blue-700 focus:outline-none w-80"
+          />
+        </p>
+      </div>
+    </div>
+
     <!-- Footer -->
     <div class="mt-6 block space-x-2">
       <button
