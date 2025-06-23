@@ -2,9 +2,11 @@
   <!-- <div class="min-h-screen bg-gray-50 flex items-center justify-center py-10"> -->
   <div class="bg-white p-8 shadow-xl rounded-2xl w-full ">
     <!-- En-tête avec nom et photo -->
-    <div class="flex items-start space-x-8 mb-8">
+    <div
+      class="flex flex-col md:flex-row items-start md:space-x-8 mb-8 space-y-4 md:space-y-0 "
+    >
       <div
-        class="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-4 border-blue-100 shadow"
+        class="w-24 h-24  md:w-32 md:h-32 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-4 border-blue-100 shadow mx-auto md:mx-0"
       >
         <img
           src="../../../public/placeholder phote.png"
@@ -12,17 +14,17 @@
           class="object-cover w-full h-full"
         />
       </div>
-      <div class="flex-1">
+      <div class="flex-1 w-full ml-5">
         <input
           type="text"
-          class="border-0 border-b-2 border-blue-500 focus:border-blue-700 focus:outline-none w-full max-w-xl h-20 text-4xl px-4 pt-10 bg-transparent placeholder-gray-400"
+          class="border-0 border-b-2 border-blue-500 focus:border-blue-700 focus:outline-none w-full max-w-xl h-16 md:h-20 text-2xl md:text-4xl px-4 pt-6 md:pt-10 bg-transparent placeholder-gray-400"
           placeholder="Nom de l'employé"
         />
         <p class="text-gray-500 flex items-center mt-2">
-          <span class="text-purple-500 mr-2">💼</span>
+          <!-- <span class="text-purple-500 mr-2">💼</span> -->
           <input
             type="text"
-            class="border-0 border-b-2 border-blue-500 focus:border-blue-700 focus:outline-none w-full max-w-lg text-2xl px-4 pt-1 bg-transparent placeholder-gray-400"
+            class="border-0 border-b-2 border-blue-500 focus:border-blue-700 focus:outline-none w-full max-w-lg text-lg md:text-2xl px-4 pt-1 bg-transparent placeholder-gray-400"
             placeholder="Titre du poste"
           />
         </p>

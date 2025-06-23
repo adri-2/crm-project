@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 bg-white rounded-lg shadow">
+  <div class="p-6 bg-white  drop-shadow rounded-lg shadow-2xl">
     <div class="flex justify-between items-center mb-4">
       <div>
         <h2 class="text-xl font-semibold text-gray-800">Jobs</h2>
@@ -16,8 +16,8 @@
       </RouterLink>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="min-w-full text-sm text-left text-gray-700">
+    <div class="overflow-x-auto ">
+      <table class="min-w-full text-sm text-left text-gray-700 bg-white">
         <thead class="text-xs uppercase text-gray-500 border-b">
           <tr>
             <th class="px-4 py-3">Title</th>
