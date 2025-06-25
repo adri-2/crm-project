@@ -17,7 +17,7 @@
       </RouterLink>
     </div>
 
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto overflow-y-auto">
       <table class="min-w-full text-sm text-left text-gray-700">
         <thead class="text-xs uppercase text-gray-500 border-b">
           <tr>
@@ -103,6 +103,52 @@ const jobs = [
     requests: 7,
     applications: 3,
   },
+   {
+    id: 1,
+    title: "Développeur Frontend",
+    department: "Informatique",
+    created_at: "2025-05-01",
+    deadline: "2025-06-15",
+    requests: 10,
+    applications: 6,
+  },
+  {
+    id: 2,
+    title: "Analyste RH",
+    department: "Ressources Humaines",
+    created_at: "2025-04-20",
+    deadline: "2025-06-01",
+    requests: 8,
+    applications: 8,
+  },
+  {
+    id: 3,
+    title: "Assistant Marketing",
+    department: "Marketing",
+    created_at: "2025-05-10",
+    deadline: "2025-06-30",
+    requests: 15,
+    applications: 11,
+  },
+  {
+    id: 4,
+    title: "Chef de projet",
+    department: "Gestion de projet",
+    created_at: "2025-04-05",
+    deadline: "2025-06-10",
+    requests: 5,
+    applications: 2,
+  },
+  {
+    id: 5,
+    title: "Comptable",
+    department: "Finance",
+    created_at: "2025-05-15",
+    deadline: "2025-06-25",
+    requests: 7,
+    applications: 3,
+  },
+
 ];
 
 // Formateur de date

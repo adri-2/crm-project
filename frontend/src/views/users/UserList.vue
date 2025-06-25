@@ -2,7 +2,7 @@
   <div
     class="flex flex-col p-6 bg-white rounded-lg shadow-2xl  drop-shadow min-h-[500px] min-w-[800px]"
   >
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex justify-between items-center mb-4 ">
       <div>
         <h2 class="text-xl font-semibold text-gray-800">Users</h2>
         <p class="text-sm text-gray-500">
@@ -19,7 +19,7 @@
       </RouterLink>
     </div>
 
-    <div class="overflow-x-auto bg-white flex flex-col grow">
+    <div class="overflow-y-auto bg-white flex flex-col grow">
       <!-- User Table -->
       <table class="min-w-full text-sm text-left text-gray-700 ">
         <thead class="text-xs uppercase text-gray-500 border-b">
