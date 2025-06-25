@@ -113,9 +113,10 @@
         <select
           class="border-0 border-b-2 border-blue-500 focus:border-blue-700 focus:outline-none w-80"
         >
-          <option value="">1</option>
-          <option value="">2</option>
-          <option value="">3</option>
+          <option value="">CDD</option>
+          <option value="">CDI</option>
+          <option value="">Stage pro</option>
+          <option value="">Stage</option>
         </select>
       </div>
 
@@ -175,16 +176,6 @@
           class="text-sm font-medium text-gray-900 border-b-2 border-indigo-600 pb-2"
           >Détails</a
         >
-        <a
-          href="#"
-          class="text-sm font-medium text-gray-500 hover:text-gray-700 pb-2"
-          >Note</a
-        >
-        <a
-          href="#"
-          class="text-sm font-medium text-gray-500 hover:text-gray-700 pb-2"
-          >Compétences</a
-        >
       </nav>
     </div>
 
@@ -236,14 +227,14 @@
       <!-- Colonne droite -->
       <div>
         <p class="uppercase text-xs font-semibold text-gray-500 mb-2">POSTE</p>
-        <p>
+        <!-- <p>
           <span class="font-semibold">Département</span>
           <input
             type="text"
             class="border-0 border-b-2  border-blue-500 focus:border-blue-700 focus:outline-none w-80"
           />
-        </p>
-        <p class="mt-2">
+        </p> -->
+        <!-- <p class="mt-2">
           <span class="font-semibold"
             >Source <span class="text-xs text-blue-500">?</span></span
           >
@@ -255,8 +246,8 @@
             <option value="">DUT</option>
             <option value="">BTSS</option>
           </select>
-        </p>
-        <p class="mt-2">
+        </p> -->
+        <!-- <p class="mt-2">
           <span class="font-semibold"
             >Médium <span class="text-xs text-blue-500">?</span></span
           >
@@ -271,7 +262,7 @@
             <option value="">DUT</option>
             <option value="">BTSS</option>
           </select>
-        </p>
+        </p> -->
 
         <div class="flex mt-2">
           <p class="font-semibold  mr-2">
@@ -284,7 +275,7 @@
             id=""
             class="mr-2 border-0 border-b-2 border-blue-500 focus:border-blue-700 focus:outline-none w-30"
           />
-          <p class="font-semibold  mr-2">
+          <!-- <p class="font-semibold  mr-2">
             Dates de la mission
             <span class="text-xs text-blue-500 cursor-help">?</span>
           </p>
@@ -293,7 +284,19 @@
             name=""
             id=""
             class="mr-2 ml-2 border-0 border-b-2  border-blue-500 focus:border-blue-700 focus:outline-none w-30"
-          />
+          /> -->
+        </div>
+        <div class="flex mt-2">
+          <p class="font-semibold  mr-2">
+            Description
+            <span class="text-xs text-blue-500 cursor-help">?</span>
+          </p>
+
+          <textarea
+            name=""
+            id=""
+            class="mr-2 border-0 border-b-2 border-blue-50 focus:border-blue-500 focus:outline-none w-80"
+          ></textarea>
         </div>
       </div>
     </div>
