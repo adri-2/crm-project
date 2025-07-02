@@ -59,7 +59,7 @@ class OffreEmploi(models.Model):
         """
         Retourne toutes les offres (ici, placeholder, à adapter selon relations).
         """
-        return OffreEmploi.objects.all()
+        return self.candidats.all()
 
     def get_absolute_url(self):
         """
@@ -69,6 +69,14 @@ class OffreEmploi(models.Model):
 
     def __str__(self):
         return self.titre
+    
+    
+#---------------------------------------#
+# Modèle représentant un candidat
+#---------------------------------------#  
+    
+    
+    
 
 class Candidat(models.Model):
     """
@@ -88,11 +96,22 @@ class Candidat(models.Model):
     score_cv_ia = models.FloatField(null=True, blank=True)
     poste_vise = models.CharField(max_length=100)
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='nouveau')
+    offre = models.ForeignKey(OffreEmploi,    on_delete=models.CASCADE,    related_name="candidats",    verbose_name="Offre liée")
+
 
     class Meta:
         verbose_name = "Candidat"
         verbose_name_plural = "Candidats"
-        ordering = ['nom_complet']
+        ordering = ['-date_candidature', 'nom_complet']
+        
+        
+    @property
+    def myoffres(self):
+        """
+        Retourne toutes les offres (ici, placeholder, à adapter selon relations).
+        """
+        return self.offre.all()
+
 
     def __str__(self):
         return self.nom_complet
