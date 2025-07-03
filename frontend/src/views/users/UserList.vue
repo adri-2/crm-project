@@ -1,188 +1,386 @@
 <template>
   <div
-    class="flex flex-col p-6 bg-white rounded-lg shadow-2xl  drop-shadow min-h-[500px] min-w-[800px]"
+    class="flex flex-col p-6 bg-white rounded-lg shadow-xl drop-shadow min-h-[500px]"
+    :class="{'min-w-[800px]': !isMobile}"
   >
-    <div class="flex justify-between items-center mb-4 ">
+    <div
+      class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0"
+    >
       <div>
-        <h2 class="text-xl font-semibold text-gray-800">Users</h2>
-        <p class="text-sm text-gray-500">
-          A list of all the users in your account including their name, title,
-          email and role.
+        <h2 class="text-2xl font-bold text-gray-800 mb-1">Utilisateurs</h2>
+        <p class="text-sm text-gray-600 max-w-lg">
+          Liste de tous les utilisateurs de votre compte, y compris leur nom,
+          titre, e-mail et rôle. Gérez facilement les informations de chaque
+          membre.
         </p>
       </div>
 
       <RouterLink
         to="/user/new"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm"
+        class="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md text-sm transition-colors duration-200 ease-in-out shadow-md hover:shadow-lg"
       >
-        Nouveau
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4 mr-2"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        Nouvel Utilisateur
       </RouterLink>
     </div>
 
-    <div class="overflow-y-auto bg-white flex flex-col grow">
-      <!-- User Table -->
-      <table class="min-w-full text-sm text-left text-gray-700 ">
-        <thead class="text-xs uppercase text-gray-500 border-b">
+    <div class="mb-4 flex flex-col sm:flex-row gap-4">
+      <input
+        type="text"
+        v-model="searchQuery"
+        placeholder="Rechercher par nom, email, titre..."
+        class="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+      />
+      <select
+        v-model="filterRole"
+        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+      >
+        <option value="">Tous les rôles</option>
+        <option v-for="role in availableRoles" :key="role" :value="role">
+          {{ role }}
+        </option>
+      </select>
+    </div>
+
+    <div
+      class="overflow-x-auto overflow-y-auto bg-white flex flex-col grow border border-gray-200 rounded-lg"
+    >
+      <table
+        class="min-w-full text-sm text-left text-gray-700 divide-y divide-gray-200"
+      >
+        <thead
+          class="bg-gray-50 text-xs uppercase text-gray-500 sticky top-0 z-10"
+        >
           <tr>
-            <th class="px-4 py-3">#</th>
-            <th class="px-4 py-3">Name</th>
-            <th class="px-4 py-3">Title</th>
-            <th class="px-4 py-3">Email</th>
-            <th class="px-4 py-3">Role</th>
+            <th class="px-6 py-3 font-medium tracking-wider">#</th>
+            <th class="px-6 py-3 font-medium tracking-wider">Nom</th>
+            <th class="px-6 py-3 font-medium tracking-wider">Titre</th>
+            <th class="px-6 py-3 font-medium tracking-wider">Email</th>
+            <th class="px-6 py-3 font-medium tracking-wider">Rôle</th>
+            <th class="px-6 py-3 font-medium tracking-wider text-right">
+              Actions
+            </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-gray-200">
+          <tr
+            v-if="filteredUsers.length === 0 && !loading"
+            class="text-center text-gray-500 py-4"
+          >
+            <td colspan="6" class="px-6 py-4">Aucun utilisateur trouvé.</td>
+          </tr>
           <tr
             v-for="user in paginatedUsers"
             :key="user.email"
-            class="border-b hover:bg-gray-50"
+            class="hover:bg-gray-50 transition-colors duration-150 ease-in-out"
           >
-            <td class="px-4 py-3">{{ user.id }}</td>
-            <td class="px-4 py-3 font-medium text-gray-900">{{ user.name }}</td>
-            <td class="px-4 py-3 text-indigo-600">{{ user.title }}</td>
-            <td class="px-4 py-3">{{ user.email }}</td>
-            <td class="px-4 py-3">{{ user.role }}</td>
-            <td
-              class="px-4 py-3 text-indigo-600 font-medium cursor-pointer hover:underline"
-            >
-              Edit
+            <td class="px-6 py-4">{{ user.id }}</td>
+            <td class="px-6 py-4 font-medium text-gray-900 flex items-center">
+              <img
+                :src="user.avatar"
+                alt="Avatar"
+                class="h-8 w-8 rounded-full mr-3 object-cover"
+                v-if="user.avatar"
+              />
+              {{ user.name }}
+            </td>
+            <td class="px-6 py-4 text-indigo-600">{{ user.title }}</td>
+            <td class="px-6 py-4 text-gray-800">{{ user.email }}</td>
+            <td class="px-6 py-4">
+              <span :class="roleBadgeClass(user.role)">
+                {{ user.role }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <button
+                @click="editUser(user.id)"
+                class="text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer hover:underline text-sm"
+              >
+                Éditer
+              </button>
+              <button
+                @click="confirmDeleteUser(user.id)"
+                class="ml-4 text-red-600 hover:text-red-800 font-medium cursor-pointer hover:underline text-sm"
+              >
+                Supprimer
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
-      <!-- Pagination Controls -->
-      <div class="mt-6 flex justify-between items-center shrink-0">
-        <p class="text-sm text-gray-700">
-          Showing
-          <span class="font-medium">{{ startIndex + 1 }}</span>
-          to
-          <span class="font-medium">{{ endIndex }}</span>
-          of
-          <span class="font-medium">{{ users.length }}</span>
-          results
-        </p>
+    </div>
+
+    <div
+      class="mt-6 flex flex-col sm:flex-row justify-between items-center shrink-0"
+    >
+      <p class="text-sm text-gray-700 mb-2 sm:mb-0">
+        Affichage de
+        <span class="font-medium">{{ startIndex + 1 }}</span>
+        à
+        <span class="font-medium">{{ endIndex }}</span>
+        sur
+        <span class="font-medium">{{ filteredUsers.length }}</span>
+        résultats
+      </p>
+      <div class="flex gap-2">
+        <button
+          @click="goToPage(currentPage - 1)"
+          :disabled="currentPage === 1"
+          class="px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150 ease-in-out"
+        >
+          Précédent
+        </button>
         <div class="flex gap-1">
-          <button
-            @click="goToPage(currentPage - 1)"
-            :disabled="currentPage === 1"
-            class="px-3 py-1 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-          >
-            Previous
-          </button>
           <button
             v-for="page in visiblePages"
             :key="page"
             @click="goToPage(page)"
             :class="[
-              'px-3 py-1 text-sm rounded border',
+              'px-4 py-2 text-sm rounded-md border',
               page === currentPage
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-100'
             ]"
           >
             {{ page }}
           </button>
-          <button
-            @click="goToPage(currentPage + 1)"
-            :disabled="currentPage === totalPages"
-            class="px-3 py-1 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-          >
-            Next
-          </button>
         </div>
+        <button
+          @click="goToPage(currentPage + 1)"
+          :disabled="currentPage === totalPages"
+          class="px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150 ease-in-out"
+        >
+          Suivant
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { RouterLink } from 'vue-router';
+import { ref, computed, watch, onMounted } from 'vue';
+import { RouterLink } from 'vue-router'; // Assurez-vous que vue-router est bien installé et configuré
 
-const perPage = 10;
-const currentPage = ref(1);
+// --- Données et États ---
+const perPage = 10; // Nombre d'utilisateurs par page
+const currentPage = ref(1); // Page actuelle de la pagination
+const searchQuery = ref(''); // Terme de recherche
+const filterRole = ref(''); // Filtre par rôle
+const loading = ref(true); // État de chargement des données
+const error = ref(null); // Message d'erreur
+const isMobile = ref(false); // Pour adapter le min-width sur mobile
 
-const users = ref([
-  { id: '1', name: "Lindsay Walton", title: "Front-end Developer", email: "lindsay.walton@example.com", role: "Member" },
-  { id: '2', name: "Courtney Henry", title: "Designer", email: "courtney.henry@example.com", role: "Admin" },
-  { id: '3', name: "Tom Cook", title: "Director", email: "tom.cook@example.com", role: "Member" },
-  { id: '4', name: "Whitney Francis", title: "Copywriter", email: "whitney.francis@example.com", role: "Member" },
-  { id: '5', name: "Leonard Krasner", title: "Senior Designer", email: "leonard.krasner@example.com", role: "Owner" },
-  { id: '6', name: "Floyd Miles", title: "Principal Designer", email: "floyd.miles@example.com", role: "Member" },
-  { id: '7', name: "Emily Selman", title: "VP, User Experience", email: "emily.selman@example.com", role: "Admin" },
-  { id: '8', name: "Kristin Watson", title: "Front-end Developer", email: "kristin.watson@example.com", role: "Member" },
-  { id: '9', name: "Jenny Wilson", title: "Product Designer", email: "jenny.wilson@example.com", role: "Member" },
-  { id: '10', name: "Cody Fisher", title: "Product Manager", email: "cody.fisher@example.com", role: "Member" },
-  { id: '11', name: "Jane Cooper", title: "Marketing Coordinator", email: "jane.cooper@example.com", role: "Member" },
-  { id: '12', name: "Wade Warren", title: "Software Engineer", email: "wade.warren@example.com", role: "Member" },
-  { id: '13', name: "Lindsay Walton", title: "Front-end Developer", email: "lindsay.walton2@example.com", role: "Member" },
-  { id: '14', name: "Courtney Henry", title: "Designer", email: "courtney.henry2@example.com", role: "Admin" },
-  { id: '15', name: "Tom Cook", title: "Director", email: "tom.cook2@example.com", role: "Member" },
-  { id: '16', name: "Whitney Francis", title: "Copywriter", email: "whitney.francis2@example.com", role: "Member" },
-  { id: '17', name: "Leonard Krasner", title: "Senior Designer", email: "leonard.krasner2@example.com", role: "Owner" },
-  { id: '18', name: "Floyd Miles", title: "Principal Designer", email: "floyd.miles2@example.com", role: "Member" },
-  { id: '19', name: "Emily Selman", title: "VP, User Experience", email: "emily.selman2@example.com", role: "Admin" },
-  { id: '20', name: "Kristin Watson", title: "Front-end Developer", email: "kristin.watson2@example.com", role: "Member" },
-  { id: '21', name: "Jenny Wilson", title: "Product Designer", email: "jenny.wilson2@example.com", role: "Member" },
-  { id: '22', name: "Cody Fisher", title: "Product Manager", email: "cody.fisher2@example.com", role: "Member" },
-  { id: '23', name: "Jane Cooper", title: "Marketing Coordinator", email: "jane.cooper2@example.com", role: "Member" },
-  { id: '24', name: "Wade Warren", title: "Software Engineer", email: "wade.warren2@example.com", role: "Member" },
-  { id: '25', name: "Lindsay Walton", title: "Front-end Developer", email: "lindsay.walton3@example.com", role: "Member" },
-  { id: '26', name: "Courtney Henry", title: "Designer", email: "courtney.henry3@example.com", role: "Admin" },
-  { id: '27', name: "Tom Cook", title: "Director", email: "tom.cook3@example.com", role: "Member" },
-  { id: '28', name: "Whitney Francis", title: "Copywriter", email: "whitney.francis3@example.com", role: "Member" },
-  { id: '29', name: "Leonard Krasner", title: "Senior Designer", email: "leonard.krasner3@example.com", role: "Owner" },
-  { id: '30', name: "Floyd Miles", title: "Principal Designer", email: "floyd.miles3@example.com", role: "Member" },
-  { id: '31', name: "Emily Selman", title: "VP, User Experience", email: "emily.selman3@example.com", role: "Admin" },
-  { id: '32', name: "Kristin Watson", title: "Front-end Developer", email: "kristin.watson3@example.com", role: "Member" },
-  { id: '33', name: "Jenny Wilson", title: "Product Designer", email: "jenny.wilson3@example.com", role: "Member" },
-  { id: '34', name: "Cody Fisher", title: "Product Manager", email: "cody.fisher3@example.com", role: "Member" },
-  { id: '35', name: "Jane Cooper", title: "Marketing Coordinator", email: "jane.cooper3@example.com", role: "Member" },
-  { id: '36', name: "Wade Warren", title: "Software Engineer", email: "wade.warren3@example.com", role: "Member" },
-  { id: '37', name: "Lindsay Walton", title: "Front-end Developer", email: "lindsay.walton4@example.com", role: "Member" },
-  { id: '38', name: "Courtney Henry", title: "Designer", email: "courtney.henry4@example.com", role: "Admin" },
-  { id: '39', name: "Tom Cook", title: "Director", email: "tom.cook4@example.com", role: "Member" },
-  { id: '40', name: "Whitney Francis", title: "Copywriter", email: "whitney.francis4@example.com", role: "Member" },
-  { id: '41', name: "Leonard Krasner", title: "Senior Designer", email: "leonard.krasner4@example.com", role: "Owner" },
-  { id: '42', name: "Floyd Miles", title: "Principal Designer", email: "floyd.miles4@example.com", role: "Member" },
-  // { id: '43', name: "Emily Selman", title: "VP, User Experience", email: "emily.selman4@example.com", role: "Admin" },
-  // { id: '44', name: "Kristin Watson", title: "Front-end Developer", email: "kristin.watson4@example.com", role: "Member" },
-  // { id: '45', name: "Jenny Wilson", title: "Product Designer", email: "jenny.wilson4@example.com", role: "Member" },
-  // { id: '46', name: "Cody Fisher", title: "Product Manager", email: "cody.fisher4@example.com", role: "Member" },
-  // { id: '47', name: "Jane Cooper", title: "Marketing Coordinator", email: "jane.cooper4@example.com", role: "Member" },
-  // { id: '48', name: "Wade Warren", title: "Software Engineer", email: "wade.warren4@example.com", role: "Member" },
-]);
+// Données des utilisateurs (simulées - à remplacer par un appel API)
+const users = ref([]); // Initialement vide, sera rempli par fetchData
 
-const totalPages = computed(() => Math.ceil(users.value.length / perPage));
+// --- Détection Mobile (pour ajuster le style si besoin) ---
+onMounted(() => {
+  checkIfMobile();
+  window.addEventListener('resize', checkIfMobile);
+  fetchUsers(); // Récupère les utilisateurs au montage du composant
+});
+
+const checkIfMobile = () => {
+  isMobile.value = window.innerWidth < 768; // Exemple pour les écrans < md
+};
+
+// --- Logique de Récupération des Utilisateurs ---
+const fetchUsers = async () => {
+  loading.value = true;
+  error.value = null;
+  try {
+    // --- SIMULATION D'APPEL API ---
+    // En production, vous feriez un appel à votre API Django ici
+    // Exemple avec fetch :
+    // const response = await fetch('/api/users/');
+    // if (!response.ok) throw new Error('Échec de la récupération des utilisateurs.');
+    // const data = await response.json();
+    // users.value = data;
+
+    // Données fictives pour la démo
+    await new Promise(resolve => setTimeout(resolve, 800)); // Simule un délai réseau
+    users.value = [
+      { id: '1', name: "Lindsay Walton", title: "Développeur Front-end", email: "lindsay.walton@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '2', name: "Courtney Henry", title: "Designer", email: "courtney.henry@example.com", role: "Admin", avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '3', name: "Tom Cook", title: "Directeur", email: "tom.cook@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '4', name: "Whitney Francis", title: "Copywriter", email: "whitney.francis@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '5', name: "Leonard Krasner", title: "Designer Senior", email: "leonard.krasner@example.com", role: "Propriétaire", avatar: 'https://images.unsplash.com/photo-1520785643438-5be78edd20d4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '6', name: "Floyd Miles", title: "Designer Principal", email: "floyd.miles@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1519244706279-b2ee4f6d6230?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '7', name: "Emily Selman", title: "VP, Expérience Utilisateur", email: "emily.selman@example.com", role: "Admin", avatar: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '8', name: "Kristin Watson", title: "Développeur Front-end", email: "kristin.watson@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1509783236416-c9ad59ae4727?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '9', name: "Jenny Wilson", title: "Designer Produit", email: "jenny.wilson@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '10', name: "Cody Fisher", title: "Chef de Produit", email: "cody.fisher@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1502823403499-6ccfcfbd4f0e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '11', name: "Jane Cooper", title: "Coordinatrice Marketing", email: "jane.cooper@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29329?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '12', name: "Wade Warren", title: "Ingénieur Logiciel", email: "wade.warren@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1463453091185-6156198c8900?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '13', name: "Lindsay Walton 2", title: "Développeur Front-end", email: "lindsay.walton2@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '14', name: "Courtney Henry 2", title: "Designer", email: "courtney.henry2@example.com", role: "Admin", avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '15', name: "Tom Cook 2", title: "Directeur", email: "tom.cook2@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '16', name: "Whitney Francis 2", title: "Copywriter", email: "whitney.francis2@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '17', name: "Leonard Krasner 2", title: "Designer Senior", email: "leonard.krasner2@example.com", role: "Propriétaire", avatar: 'https://images.unsplash.com/photo-1520785643438-5be78edd20d4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '18', name: "Floyd Miles 2", title: "Designer Principal", email: "floyd.miles2@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1519244706279-b2ee4f6d6230?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '19', name: "Emily Selman 2", title: "VP, Expérience Utilisateur", email: "emily.selman2@example.com", role: "Admin", avatar: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '20', name: "Kristin Watson 2", title: "Développeur Front-end", email: "kristin.watson2@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1509783236416-c9ad59ae4727?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '21', name: "Jenny Wilson 2", title: "Designer Produit", email: "jenny.wilson2@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '22', name: "Cody Fisher 2", title: "Chef de Produit", email: "cody.fisher2@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1502823403499-6ccfcfbd4f0e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '23', name: "Jane Cooper 2", title: "Coordinatrice Marketing", email: "jane.cooper2@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29329?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '24', name: "Wade Warren 2", title: "Ingénieur Logiciel", email: "wade.warren2@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1463453091185-6156198c8900?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '25', name: "Lindsay Walton 3", title: "Développeur Front-end", email: "lindsay.walton3@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '26', name: "Courtney Henry 3", title: "Designer", email: "courtney.henry3@example.com", role: "Admin", avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '27', name: "Tom Cook 3", title: "Directeur", email: "tom.cook3@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '28', name: "Whitney Francis 3", title: "Copywriter", email: "whitney.francis3@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '29', name: "Leonard Krasner 3", title: "Designer Senior", email: "leonard.krasner3@example.com", role: "Propriétaire", avatar: 'https://images.unsplash.com/photo-1520785643438-5be78edd20d4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '30', name: "Floyd Miles 3", title: "Designer Principal", email: "floyd.miles3@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1519244706279-b2ee4f6d6230?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '31', name: "Emily Selman 3", title: "VP, Expérience Utilisateur", email: "emily.selman3@example.com", role: "Admin", avatar: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '32', name: "Kristin Watson 3", title: "Développeur Front-end", email: "kristin.watson3@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1509783236416-c9ad59ae4727?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '33', name: "Jenny Wilson 3", title: "Designer Produit", email: "jenny.wilson3@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '34', name: "Cody Fisher 3", title: "Chef de Produit", email: "cody.fisher3@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1502823403499-6ccfcfbd4f0e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '35', name: "Jane Cooper 3", title: "Coordinatrice Marketing", email: "jane.cooper3@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29329?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '36', name: "Wade Warren 3", title: "Ingénieur Logiciel", email: "wade.warren3@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1463453091185-6156198c8900?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '37', name: "Lindsay Walton 4", title: "Développeur Front-end", email: "lindsay.walton4@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '38', name: "Courtney Henry 4", title: "Designer", email: "courtney.henry4@example.com", role: "Admin", avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '39', name: "Tom Cook 4", title: "Directeur", email: "tom.cook4@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '40', name: "Whitney Francis 4", title: "Copywriter", email: "whitney.francis4@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '41', name: "Leonard Krasner 4", title: "Designer Senior", email: "leonard.krasner4@example.com", role: "Propriétaire", avatar: 'https://images.unsplash.com/photo-1520785643438-5be78edd20d4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+      { id: '42', name: "Floyd Miles 4", title: "Designer Principal", email: "floyd.miles4@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1519244706279-b2ee4f6d6230?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' },
+    ];
+  } catch (e) {
+    error.value = `Impossible de charger les utilisateurs: ${e.message}`;
+    console.error(e);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// --- Logique de Filtrage et Recherche ---
+const filteredUsers = computed(() => {
+  let filtered = users.value;
+
+  // Appliquer le filtre de recherche
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(user =>
+      user.name.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query) ||
+      user.title.toLowerCase().includes(query)
+    );
+  }
+
+  // Appliquer le filtre de rôle
+  if (filterRole.value) {
+    filtered = filtered.filter(user => user.role === filterRole.value);
+  }
+
+  return filtered;
+});
+
+// Récupérer tous les rôles uniques pour le filtre
+const availableRoles = computed(() => {
+  const roles = new Set(users.value.map(user => user.role));
+  return Array.from(roles).sort();
+});
+
+// --- Logique de Pagination ---
+const totalPages = computed(() => Math.ceil(filteredUsers.value.length / perPage));
 
 const paginatedUsers = computed(() => {
   const start = (currentPage.value - 1) * perPage;
-  return users.value.slice(start, start + perPage);
+  return filteredUsers.value.slice(start, start + perPage);
 });
 
 const startIndex = computed(() => (currentPage.value - 1) * perPage);
 const endIndex = computed(() =>
-  Math.min(currentPage.value * perPage, users.value.length)
+  Math.min(currentPage.value * perPage, filteredUsers.value.length)
 );
 
+// Pages visibles dans la pagination (ex: 1 2 3 4 5)
 const visiblePages = computed(() => {
   const pages = [];
-  let start = Math.max(1, currentPage.value - 2);
-  let end = Math.min(totalPages.value, start + 4);
-  if (end - start < 4) start = Math.max(1, end - 4);
-  for (let i = start; i <= end; i++) pages.push(i);
+  const maxVisible = 5; // Nombre max de boutons de page à afficher
+  let start = Math.max(1, currentPage.value - Math.floor(maxVisible / 2));
+  let end = Math.min(totalPages.value, start + maxVisible - 1);
+
+  // Ajustement si on est proche des limites
+  if (end - start + 1 < maxVisible) {
+    start = Math.max(1, end - maxVisible + 1);
+  }
+
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
   return pages;
 });
 
+// Naviguer vers une page spécifique
 function goToPage(page) {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page;
   }
 }
 
-watch(users, () => {
+// Réinitialiser la page courante si les filtres réduisent le nombre total de pages
+watch([filteredUsers, perPage], () => {
   if (currentPage.value > totalPages.value) {
     currentPage.value = 1;
   }
-});
+}, { immediate: true }); // immediate: true pour s'assurer que cela s'exécute au premier chargement si filteredUsers est vide au début
+
+
+// --- Logique des Actions Utilisateur ---
+const editUser = (userId) => {
+  // Implémentez la logique d'édition ici (ex: router.push(`/user/${userId}/edit`))
+  console.log(`Éditer l'utilisateur avec l'ID : ${userId}`);
+  // Exemple: router.push({ name: 'UserEdit', params: { id: userId } });
+};
+
+const confirmDeleteUser = (userId) => {
+  if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur avec l'ID ${userId} ?`)) {
+    deleteUser(userId);
+  }
+};
+
+const deleteUser = async (userId) => {
+  // Implémentez la logique de suppression ici (appel API)
+  console.log(`Suppression de l'utilisateur avec l'ID : ${userId}`);
+  // Exemple :
+  // try {
+  //   const response = await fetch(`/api/users/${userId}/`, { method: 'DELETE' });
+  //   if (!response.ok) throw new Error('Échec de la suppression.');
+  //   users.value = users.value.filter(u => u.id !== userId); // Met à jour la liste localement
+  //   alert('Utilisateur supprimé avec succès !');
+  // } catch (e) {
+  //   alert(`Erreur lors de la suppression: ${e.message}`);
+  // }
+};
+
+// --- Fonctions d'aide pour le style (badges de rôle) ---
+const roleBadgeClass = (role) => {
+  switch (role) {
+    case 'Admin':
+      return 'bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full text-xs font-medium';
+    case 'Membre':
+      return 'bg-green-100 text-green-800 px-2.5 py-0.5 rounded-full text-xs font-medium';
+    case 'Propriétaire':
+      return 'bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full text-xs font-medium';
+    default:
+      return 'bg-gray-100 text-gray-800 px-2.5 py-0.5 rounded-full text-xs font-medium';
+  }
+};
 </script>
+
+<style scoped>
+/* Pas de styles spécifiques nécessaires ici, Tailwind CSS gère tout. */
+/* Si vous avez besoin de styles complexes non gérables par Tailwind, mettez-les ici */
+</style>

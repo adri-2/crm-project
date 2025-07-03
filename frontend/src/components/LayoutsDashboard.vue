@@ -6,11 +6,18 @@
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <div class="flex items-center gap-4">
-            <div class="shrink-0">
-              <img
+            <div
+              class="shadow border-b-blue-400 border-2 rounded-full p-[1px] flex items-center justify-center"
+            >
+              <!-- <img
                 class="size-10 drop-shadow-lg"
                 src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
                 alt="Your Company"
+              /> -->
+              <img
+                src="..\assets\logo1.png"
+                alt=""
+                class=" rounded-full flex items-center justify-center size-14 drop-shadow-lg"
               />
             </div>
             <div class="hidden md:block">
