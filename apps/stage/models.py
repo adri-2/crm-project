@@ -1,8 +1,10 @@
 from django.db import models
 from django.conf import settings
-from employees.models import Employe
+from  apps.employees.models import Employe
 from django.urls import reverse
-from postes.models import Postes
+from  apps.postes.models import Poste
+
+
 class Stagiaire(models.Model):
     CONTRAT_CHOICES = (
         ('Stage Académique', 'Stage Académique'),
@@ -30,7 +32,7 @@ class Stagiaire(models.Model):
     contrat_type = models.CharField(max_length=30, choices=CONTRAT_CHOICES, verbose_name="Type de contrat")
     date_embauche = models.DateField(verbose_name="Date d'embauche")
     matricule = models.CharField(max_length=20, unique=True, verbose_name="Matricule")
-    poste = models.ForeignKey(Postes, on_delete=models.PROTECT, verbose_name="Poste")
+    poste = models.ForeignKey(Poste, on_delete=models.PROTECT, verbose_name="Poste")
     # departement = models.CharField(max_length=100, verbose_name="Département")
     adresse_personnelle = models.TextField(blank=True, null=True, verbose_name="Adresse personnelle")
     tel_personnelle = models.CharField(max_length=12, blank=True, null=True, verbose_name="Téléphone personnel")

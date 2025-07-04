@@ -1,7 +1,8 @@
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
-from postes.models import Postes
+
+from apps.postes.models import Poste
 
 class Employe(models.Model):
     CONTRAT_CHOICES = (
@@ -20,7 +21,7 @@ class Employe(models.Model):
         verbose_name="Utilisateur"
     )
     matricule = models.CharField(max_length=20, unique=True, verbose_name="Matricule")
-    poste = models.ForeignKey(Postes, on_delete=models.PROTECT, verbose_name="Poste")
+    poste = models.ForeignKey(Poste, on_delete=models.PROTECT, verbose_name="Poste")
     chef = models.ForeignKey(
         'self',
         null=True,

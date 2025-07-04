@@ -97,12 +97,15 @@ class Candidat(models.Model):
     poste_vise = models.CharField(max_length=100)
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='nouveau')
     offre = models.ForeignKey(OffreEmploi,    on_delete=models.CASCADE,    related_name="candidats",    verbose_name="Offre liée")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
     class Meta:
         verbose_name = "Candidat"
         verbose_name_plural = "Candidats"
-        ordering = ['-date_candidature', 'nom_complet']
+        ordering = ['-created_at', 'nom_complet']
         
         
     @property

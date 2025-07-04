@@ -46,7 +46,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # app web
-    'ai_app',
+    'apps.ai_app',
+    'apps.employees',
+    'apps.postes',
+    'apps.recruitment',
+    'apps.stage',
+    'apps.users',
+    # 'apps.',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +136,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = "users.User"
