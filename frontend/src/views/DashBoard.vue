@@ -1,7 +1,7 @@
 <template>
   <!-- En-tête -->
   <div
-    class="p-8 bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen shadow-2xl rounded-2xl"
+    class="p-8 bg-gradient-to-br  bg-white/85 min-h-screen shadow-2xl rounded-2xl"
   >
     <header
       class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between"
@@ -29,9 +29,9 @@
     </header>
 
     <!-- Statistiques principales -->
-    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 ">
       <div
-        class="bg-blue-800 rounded-2xl shadow-lg p-6 flex flex-col items-start hover:shadow-xl transition"
+        class="bg-blue-800 rounded-2xl shadow-lg p-6 flex flex-col items-start hover:shadow-2xl transition"
       >
         <h3 class="text-sm text-white mb-1">Employés</h3>
         <p class="text-3xl font-bold text-white">125</p>

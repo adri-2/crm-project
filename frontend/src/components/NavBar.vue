@@ -4,10 +4,10 @@
   <div class="flex items-baseline space-x-4  bg-white justify-between px-auto">
     <RouterLink to="/" :class="navClass('/')"> Dashboard </RouterLink>
     <RouterLink to="/user/list" :class="navClass('/user/list')">
-      List<span class="ml-2"> </span>User
+      Employée
     </RouterLink>
     <RouterLink to="/job/list" :class="navClass('/job/list')">
-      Job<span class="ml-2"> </span>List
+      Poste
     </RouterLink>
 
     <RouterLink
@@ -20,7 +20,7 @@
       to="/recruitment/candidates/"
       :class="navClass('/recruitment/candidates/')"
     >
-      Candidates
+      Candidature
     </RouterLink>
     <!-- <RouterLink to="/about" :class="navClass('/about')"> About </RouterLink> -->
   </div>
@@ -29,8 +29,8 @@
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router';
-import { RouterLink } from 'vue-router';
+import { useRoute,RouterLink  } from 'vue-router';
+
 
 const route = useRoute();
 

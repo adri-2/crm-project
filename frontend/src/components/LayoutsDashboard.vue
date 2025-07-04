@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-100"
-  >
+  <div class="min-h-screen bg-gradient-to-br bg-white">
     <nav class="bg-gradient-to-r from-white shadow-lg">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
@@ -27,7 +25,8 @@
           <div class="md:block">
             <div class="ml-4 flex items-center md:ml-6 gap-4">
               <!-- Notifications -->
-              <div
+              <NotifComponent />
+              <!-- <div
                 class="relative ml-3"
                 @click.stop="toggleNotifications"
                 ref="notifRef"
@@ -69,7 +68,7 @@
                     <p class="px-4 py-2 text-gray-700">Notification 2</p>
                   </div>
                 </transition>
-              </div>
+              </div> -->
               <!-- User menu -->
               <div class="relative ml-3" @click.stop="toggleMenu" ref="menuRef">
                 <button
@@ -143,20 +142,21 @@
 import NavBar from './NavBar.vue';
 import { RouterLink, RouterView } from 'vue-router';
 import { ref, onMounted, onUnmounted } from 'vue';
+import NotifComponent from './NotifComponent.vue';
 
 const showMenu = ref(false);
-const showNotifications = ref(false);
+// const showNotifications = ref(false);
 const menuRef = ref(null);
-const notifRef = ref(null);
+// const notifRef = ref(null);
 
 function toggleMenu() {
   showMenu.value = !showMenu.value;
   showNotifications.value = false;
 }
-function toggleNotifications() {
-  showNotifications.value = !showNotifications.value;
-  showMenu.value = false;
-}
+// function toggleNotifications() {
+//   showNotifications.value = !showNotifications.value;
+//   showMenu.value = false;
+// }
 
 function handleClickOutside(e) {
   if (

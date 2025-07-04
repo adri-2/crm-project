@@ -7,11 +7,11 @@
       class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0"
     >
       <div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-1">Offres de Poste</h2>
-        <p class="text-sm text-gray-600 max-w-lg">
+        <h2 class="text-2xl font-bold text-gray-800 mb-1">Offres d'Emploi</h2>
+        <!-- <p class="text-sm text-gray-600 max-w-lg">
           Liste complète des offres de poste avec les départements associés, les
           dates clés et le nombre de candidatures.
-        </p>
+        </p> -->
       </div>
 
       <RouterLink
@@ -66,8 +66,8 @@
       </select>
     </div>
 
-    <div v-if="loading" class="h-full w-full flex items-center justify-center">
-      <p class="text-gray-500">Chargement des offres de poste...</p>
+    <!-- <div v-if="loading" class="h-full w-full flex items-center justify-center">
+      <p class="text-gray-500">Chargement des offres d'emploi...</p>
     </div>
     <div
       v-else-if="error"
@@ -84,9 +84,9 @@
       <p class="text-gray-500">
         Aucune offre de poste trouvée pour les critères sélectionnés.
       </p>
-    </div>
+    </div> -->
+
     <div
-      v-else
       class="overflow-x-auto overflow-y-auto bg-white flex flex-col grow border border-gray-200 rounded-lg"
     >
       <table
@@ -115,6 +115,19 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
+          <tr v-if="loading" class="text-center text-gray-500 py-4">
+            <td colspan="7" class="px-6 py-4">
+              Chargement des offres d'emploi...
+            </td>
+          </tr>
+          <tr
+            v-else-if="filteredOffers.length === 0 && !loading"
+            class="text-center text-gray-500 py-4"
+          >
+            <td colspan="6" class="px-6 py-4">
+              Aucune offre de poste trouvée pour les critères sélectionnés.
+            </td>
+          </tr>
           <tr
             v-for="offer in paginatedOffers"
             :key="offer.id"
@@ -124,7 +137,9 @@
               {{ offer.title }}
             </td>
             <td class="px-6 py-4">{{ offer.department }}</td>
-            <td class="px-6 py-4">{{ formatDate(offer.created_at) }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              {{ formatDate(offer.created_at) }}
+            </td>
             <td class="px-6 py-4">
               <span :class="deadlineClass(offer.deadline)">
                 {{ formatDate(offer.deadline) }}
@@ -138,7 +153,7 @@
               </span>
             </td>
             <td class="px-6 py-4 text-right">
-              <button
+              <!-- <button
                 @click="viewOffer(offer.id)"
                 class="text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer hover:underline text-sm"
               >
@@ -149,7 +164,7 @@
                 class="ml-4 text-gray-600 hover:text-gray-800 font-medium cursor-pointer hover:underline text-sm"
               >
                 Modifier
-              </button>
+              </button> -->
               <button
                 @click="confirmDeleteOffer(offer.id)"
                 class="ml-4 text-red-600 hover:text-red-800 font-medium cursor-pointer hover:underline text-sm"
@@ -163,7 +178,7 @@
     </div>
 
     <div
-      class="mt-6 flex flex-col sm:flex-row justify-between items-center shrink-0"
+      class="mt-6 mb-2 flex flex-col sm:flex-row justify-between items-center shrink-0"
     >
       <p class="text-sm text-gray-700 mb-2 sm:mb-0">
         Affichage de

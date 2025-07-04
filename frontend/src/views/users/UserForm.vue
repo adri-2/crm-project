@@ -1,5 +1,6 @@
 <template>
   <!-- <div class="min-h-screen bg-gray-50 flex items-center justify-center py-10"> -->
+
   <div class="bg-white p-8 shadow-xl rounded-2xl w-full ">
     <!-- En-tête avec nom et photo -->
     <div
@@ -315,6 +316,20 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRoute,RouterLink  } from 'vue-router';
+
+
+const route = useRoute();
+
+function navClass(path) {
+  return [
+    'transition-all duration-200',
+    'block rounded-lg px-4 py-2 text-base font-semibold tracking-wide',
+    route.path === '/user/list'
+      ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg scale-105'
+      : 'text-bleu-700 hover:bg-indigo-700 hover:text-white'
+  ];
+}
 
 const activeTab = ref('cv') // Onglet affiché par défaut
 </script>

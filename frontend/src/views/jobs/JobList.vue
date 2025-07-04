@@ -7,11 +7,11 @@
       class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0"
     >
       <div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-1">Offres d'Emploi</h2>
-        <p class="text-sm text-gray-600 max-w-lg">
-          Liste complète des offres d'emploi avec leurs titres, entreprises,
+        <h2 class="text-2xl font-bold text-gray-800 mb-1">Postes</h2>
+        <!-- <p class="text-sm text-gray-600 max-w-lg">
+          Liste complète des postes avec leurs titres, ntreprises,
           localisations et types de contrat.
-        </p>
+        </p> -->
       </div>
 
       <RouterLink
@@ -32,7 +32,7 @@
             d="M12 4v16m8-8H4"
           />
         </svg>
-        Nouvelle Offre
+        Nouveau Poste
       </RouterLink>
     </div>
 
@@ -67,7 +67,7 @@
       </select>
     </div>
 
-    <div v-if="loading" class="h-full w-full flex items-center justify-center">
+    <!-- <div v-if="loading" class="h-full w-full flex items-center justify-center">
       <p class="text-gray-500">Chargement des offres d'emploi...</p>
     </div>
     <div
@@ -85,9 +85,8 @@
       <p class="text-gray-500">
         Aucune offre d'emploi trouvée pour les critères sélectionnés.
       </p>
-    </div>
+    </div> -->
     <div
-      v-else
       class="overflow-x-auto overflow-y-auto bg-white flex flex-col grow border border-gray-200 rounded-lg"
     >
       <table
@@ -111,7 +110,19 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
+          <tr v-if="loading" class="text-center text-gray-500 py-4">
+            <td colspan="6" class="px-6 py-4">Chargement des postes...</td>
+          </tr>
           <tr
+            v-else-if="filteredJobs.length === 0  && !loading"
+            class="text-center text-gray-500 py-4"
+          >
+            <td colspan="6" class="px-6 py-4">
+              Aucune poste trouvée pour les critères sélectionnés.
+            </td>
+          </tr>
+          <tr
+            v-else
             v-for="job in paginatedJobs"
             :key="job.id"
             class="hover:bg-gray-50 transition-colors duration-150 ease-in-out"
@@ -133,7 +144,7 @@
               </span>
             </td>
             <td class="px-6 py-4 text-right">
-              <button
+              <!-- <button
                 @click="viewJob(job.id)"
                 class="text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer hover:underline text-sm"
               >
@@ -144,7 +155,7 @@
                 class="ml-4 text-gray-600 hover:text-gray-800 font-medium cursor-pointer hover:underline text-sm"
               >
                 Éditer
-              </button>
+              </button> -->
               <button
                 @click="confirmDeleteJob(job.id)"
                 class="ml-4 text-red-600 hover:text-red-800 font-medium cursor-pointer hover:underline text-sm"

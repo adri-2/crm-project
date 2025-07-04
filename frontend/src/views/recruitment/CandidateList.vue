@@ -8,10 +8,10 @@
     >
       <div>
         <h2 class="text-2xl font-bold text-gray-800 mb-1">Candidatures</h2>
-        <p class="text-sm text-gray-600 max-w-lg">
+        <!-- <p class="text-sm text-gray-600 max-w-lg">
           Liste complète des candidatures avec les informations détaillées du
           candidat et leur statut actuel.
-        </p>
+        </p> -->
       </div>
 
       <RouterLink
@@ -71,7 +71,7 @@
       </select>
     </div>
 
-    <div v-if="loading" class="h-full w-full flex items-center justify-center">
+    <!-- <div v-if="loading" class="h-full w-full flex items-center justify-center">
       <p class="text-gray-500">Chargement des candidatures...</p>
     </div>
     <div
@@ -89,9 +89,8 @@
       <p class="text-gray-500">
         Aucune candidature trouvée pour les critères sélectionnés.
       </p>
-    </div>
+    </div> -->
     <div
-      v-else
       class="overflow-x-auto overflow-y-auto bg-white flex flex-col grow border border-gray-200 rounded-lg"
     >
       <table
@@ -100,34 +99,69 @@
         <thead
           class="bg-gray-50 text-xs uppercase text-gray-500 sticky top-0 z-10"
         >
-          <tr>
-            <th class="px-6 py-3 font-medium tracking-wider">
+          <tr class="">
+            <th class="px-6 whitespace-nowrap py-3 font-medium tracking-wider">
               Nom du Candidat
             </th>
-            <th class="px-6 py-3 font-medium tracking-wider">Postulé le</th>
-            <th class="px-6 py-3 font-medium tracking-wider">Poste</th>
-            <th class="px-6 py-3 font-medium tracking-wider">Statut</th>
-            <th class="px-6 py-3 font-medium tracking-wider">Raison refus</th>
-            <th class="px-6 py-3 font-medium tracking-wider">Évaluation</th>
-            <th class="px-6 py-3 font-medium tracking-wider">Email</th>
-            <th class="px-6 py-3 font-medium tracking-wider">Téléphone</th>
-            <th class="px-6 py-3 font-medium tracking-wider">Recruteur</th>
-            <th class="px-6 py-3 font-medium tracking-wider">
+            <th class="px-6 py-3 whitespace-nowrap font-medium tracking-wider">
+              Postulé le
+            </th>
+            <th class="px-6 py-3 whitespace-nowrap font-medium tracking-wider">
+              Poste
+            </th>
+            <th class="px-6 py-3 whitespace-nowrap font-medium tracking-wider">
+              Statut
+            </th>
+            <th class="px-6 py-3 whitespace-nowrap font-medium tracking-wider">
+              Raison refus
+            </th>
+            <th class="px-6 py-3 whitespace-nowrap font-medium tracking-wider">
+              Évaluation
+            </th>
+            <th class="px-6 py-3 whitespace-nowrap font-medium tracking-wider">
+              Email
+            </th>
+            <th class="px-6 py-3 whitespace-nowrap font-medium tracking-wider">
+              Téléphone
+            </th>
+            <th class="px-6 py-3 whitespace-nowrap font-medium tracking-wider">
+              Recruteur
+            </th>
+            <th class="px-6 py-3 whitespace-nowrap font-medium tracking-wider">
               Source / Médium
             </th>
-            <th class="px-6 py-3 font-medium tracking-wider">Étiquettes</th>
-            <th class="px-6 py-3 font-medium tracking-wider text-right">
+            <th class="px-6 py-3 whitespace-nowrap font-medium tracking-wider">
+              Étiquettes
+            </th>
+            <th
+              class="px-6 py-3 whitespace-nowrap font-medium tracking-wider text-right"
+            >
               Actions
             </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
+          <tr v-if="loading" class="text-center text-gray-500 py-4">
+            <td colspan="6" class="px-6 py-4 whitespace-nowrap">
+              Chargement des offres des candidatures...
+            </td>
+          </tr>
+          <tr
+            v-else-if="filteredCandidats.length === 0 && !loading"
+            class="text-center text-gray-500 py-4"
+          >
+            <td colspan="10" class="px-6 py-4 whitespace-nowrap">
+              Aucune candidature trouvée pour les critères sélectionnés.
+            </td>
+          </tr>
           <tr
             v-for="app in paginatedCandidat"
             :key="app.id"
             class="hover:bg-gray-50 transition-colors duration-150 ease-in-out"
           >
-            <td class="px-6 py-4 font-medium text-gray-900 flex items-center">
+            <td
+              class="px-6 py-4 whitespace-nowrap font-medium text-gray-900 flex items-center"
+            >
               <img
                 :src="app.avatar"
                 alt="Avatar"
@@ -136,24 +170,30 @@
               />
               {{ app.name }}
             </td>
-            <td class="px-6 py-4">{{ formatDate(app.applied_at) }}</td>
-            <td class="px-6 py-4">{{ app.position }}</td>
-            <td class="px-6 py-4">
+            <td class="px-6 py-4 whitespace-nowrap">
+              {{ formatDate(app.applied_at) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ app.position }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
               <span :class="statusBadgeClass(app.status)">
                 {{ app.status }}
               </span>
             </td>
-            <td class="px-6 py-4 text-red-600">
+            <td class="px-6 py-4 whitespace-nowrap text-red-600">
               {{ app.rejection_reason || '-' }}
             </td>
-            <td class="px-6 py-4">{{ app.evaluation || '-' }}</td>
-            <td class="px-6 py-4">{{ app.email }}</td>
-            <td class="px-6 py-4">{{ app.phone || '-' }}</td>
-            <td class="px-6 py-4">{{ app.recruiter || '-' }}</td>
-            <td class="px-6 py-4">
+            <td class="px-6 py-4 whitespace-nowrap">
+              {{ app.evaluation || '-' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ app.email }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ app.phone || '-' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              {{ app.recruiter || '-' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
               {{ app.source || '-' }} / {{ app.medium || '-' }}
             </td>
-            <td class="px-6 py-4">
+            <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex flex-wrap gap-1">
                 <span
                   v-for="tag in app.tags"
@@ -165,8 +205,8 @@
                 <span v-if="app.tags.length === 0">-</span>
               </div>
             </td>
-            <td class="px-6 py-4 text-right">
-              <button
+            <td class="px-6 py-4 whitespace-nowrap text-right">
+              <!-- <button
                 @click="viewCandidature(app.id)"
                 class="text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer hover:underline text-sm"
               >
@@ -177,7 +217,7 @@
                 class="ml-4 text-gray-600 hover:text-gray-800 font-medium cursor-pointer hover:underline text-sm"
               >
                 Éditer
-              </button>
+              </button> -->
               <button
                 @click="confirmDeleteCandidature(app.id)"
                 class="ml-4 text-red-600 hover:text-red-800 font-medium cursor-pointer hover:underline text-sm"
