@@ -10,5 +10,7 @@
 *.njsproj
 *.sln
 *.sw?
-
+.env
 *.tsbuildinfo
+**/migrations/
+*.docx
