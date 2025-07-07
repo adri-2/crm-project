@@ -1,7 +1,7 @@
 <template>
   <!-- En-tête -->
   <div
-    class="p-8 bg-gradient-to-br  bg-white/85 min-h-screen shadow-2xl rounded-2xl"
+    class="p-8 bg-gradient-to-br  bg-blue-50 min-h-screen shadow-2xl rounded-2xl"
   >
     <header
       class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between"
@@ -39,19 +39,19 @@
       <div
         class="bg-green-600 rounded-2xl shadow-lg p-6 flex flex-col items-start hover:shadow-xl transition"
       >
-        <h3 class="text-sm text-white mb-1">Candidatures</h3>
+        <h3 class="text-sm text-white mb-1">Stagiaires</h3>
         <p class="text-3xl font-bold text-white">38</p>
       </div>
       <div
         class="bg-orange-600  rounded-2xl shadow-lg p-6 flex flex-col items-start hover:shadow-xl transition"
       >
-        <h3 class="text-sm text-white mb-1">Présences aujourd'hui</h3>
+        <h3 class="text-sm text-white mb-1">Candidatures</h3>
         <p class="text-3xl font-bold text-white">92</p>
       </div>
       <div
-        class="bg-red-600 rounded-2xl shadow-lg p-6 flex flex-col items-start hover:shadow-xl transition"
+        class="bg-indigo-900  rounded-2xl shadow-lg p-6 flex flex-col items-start hover:shadow-xl transition"
       >
-        <h3 class="text-sm text-white mb-1">Absences</h3>
+        <h3 class="text-sm text-white mb-1">Offres</h3>
         <p class="text-3xl font-bold text-white">8</p>
       </div>
     </section>

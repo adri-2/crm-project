@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
+from django.utils.text import slugify
 
 from apps.postes.models import Poste
 
@@ -22,14 +23,7 @@ class Employe(models.Model):
     )
     matricule = models.CharField(max_length=20, unique=True, verbose_name="Matricule")
     poste = models.ForeignKey(Poste, on_delete=models.PROTECT, verbose_name="Poste")
-    chef = models.ForeignKey(
-        'self',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='subordonnes',
-        verbose_name="Supérieur hiérarchique"
-    )
+    chef = models.ForeignKey( 'self',null=True,blank=True, on_delete=models.SET_NULL,related_name='subordonnes',verbose_name="Supérieur hiérarchique"    )
     contrat_type = models.CharField(max_length=20, choices=CONTRAT_CHOICES, verbose_name="Type de contrat")
     date_embauche = models.DateField(verbose_name="Date d'embauche")
     # departement = models.CharField(max_length=100, verbose_name="Département")
@@ -56,6 +50,23 @@ class Employe(models.Model):
 
     def get_absolute_url(self):
         return reverse('employe_detail', kwargs={'pk': self.pk})
+    
+    # @property
+    # def get_username(self):
+    #     return f"{}"
+    
+    def save(self,*args,**kwargs):
+        
+        if not self.username:
+            username = slugify(f"{self.first_name} {self.last_name}")
+            ex = __class__.objects.filter(username=username).exists()
+            
+            while ex:
+                i = len(__class__.objects.filter(first_name=self.first_name,last_name=self.last_name))
+                username = slugify(f'{self.first_name} {self.last_name} {i+1}')
+                ex = __class__.objects.filter(username=username).exists()
+            self.username = username
+        super().save(*args,**kwargs)
     
     @property
     def get_my_stagiaires(self):
