@@ -58,6 +58,11 @@ class Poste(models.Model):
         verbose_name="Type de contrat"
     )
     departement = models.CharField(max_length=100, verbose_name="Département")
+    salaire_base = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Salaire de base")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
     def get_employes(self):
         """

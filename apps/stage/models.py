@@ -34,7 +34,8 @@ class Stagiaire(models.Model):
     #     verbose_name="Utilisateur"
     # )
     matricule = models.CharField(max_length=20, unique=True, verbose_name="Matricule")
-    poste = models.CharField(max_length=100, verbose_name="Poste")
+    # poste = models.CharField(max_length=100, verbose_name="Poste")
+    poste = models.ForeignKey(Poste,on_delete=models.PROTECT)
     # username = models.CharField(max_length=20, unique=True, verbose_name="Nom complet")
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
