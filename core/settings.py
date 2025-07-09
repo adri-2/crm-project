@@ -45,13 +45,24 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    # app web
+    # Applications tierces pour Django REST Framework
+    'rest_framework',
+    'rest_framework.authtoken', # Nécessaire pour l'authentification par Token
+
+    'rest_framework_simplejwt', # ADDED: Pour l'authentification JWT    'apps.users',
+    
+    
+    # Applications personnalisées 
+    'apps.users',
+   
     'apps.ai_app',
-    'apps.employees',
     'apps.postes',
+    
+    'apps.employees',    
     'apps.recruitment',
     'apps.stage',
-    'apps.users',
+    
+    
     # 'apps.',
 ]
 
@@ -113,6 +124,104 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+
+# my_project/settings.py
+
+# ... (vos configurations existantes)
+
+# INSTALLED_APPS = [
+#     # Applications Django par défaut
+#     'django.contrib.admin',
+#     'django.contrib.auth',
+#     'django.contrib.contenttypes',
+#     'django.contrib.sessions',
+#     'django.contrib.messages',
+#     'django.contrib.staticfiles',
+
+#     # Applications tierces pour Django REST Framework
+#     'rest_framework',
+#     # 'rest_framework.authtoken', # REMOVED: Plus nécessaire avec simplejwt
+#     'rest_framework_simplejwt', # ADDED: Pour l'authentification JWT
+
+#     # Vos applications personnalisées (l'ordre peut être important pour les dépendances)
+#     'users',       # Doit être avant 'employees' et 'stage' car ils dépendent de User
+#     'departement', # Doit être avant 'postes' et 'recruitment'
+#     'postes',
+#     'employees',
+#     'stage',
+#     'recruitment',
+# ]
+
+# ... (autres configurations)
+
+# Spécifiez votre modèle d'utilisateur personnalisé
+AUTH_USER_MODEL = 'users.User'
+
+# Configuration de Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication', # Permet l'authentification basée sur les sessions (utile pour l'interface navigable de l'API)
+        'rest_framework_simplejwt.authentication.JWTAuthentication', # UPDATED: Utilise l'authentification JWT
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated', # Par défaut, toutes les vues nécessitent une authentification. Les exceptions seront gérées par les permissions personnalisées.
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination', # Active la pagination par défaut
+    'PAGE_SIZE': 10, # Nombre d'éléments par page par défaut pour la pagination
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework.filters.SearchFilter',   # Permet la recherche via le paramètre 'search'
+        'rest_framework.filters.OrderingFilter', # Permet le tri via le paramètre 'ordering'
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',      # Le format de réponse par défaut est JSON
+        'rest_framework.renderers.BrowsableAPIRenderer', # Permet l'affichage d'une interface navigable dans le navigateur pour le débogage
+    ],
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler', # Utilise le gestionnaire d'erreurs par défaut de DRF
+}
+
+# REMOVED: Le signal post_save pour rest_framework.authtoken n'est plus nécessaire avec simplejwt.
+# from django.db.models.signals import post_save
+# from django.dispatch import receiver
+# from django.conf import settings
+# from rest_framework.authtoken.models import Token
+# @receiver(post_save, sender=settings.AUTH_USER_MODEL)
+# def create_auth_token(sender, instance=None, created=False, **kwargs):
+#     if created:
+#         Token.objects.get_or_create(user=instance)
+
+
+# Configuration de Django REST Framework Simple JWT
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), # Durée de vie du token d'accès
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),   # Durée de vie du token de rafraîchissement
+    'ROTATE_REFRESH_TOKENS': False,                 # Ne pas faire pivoter les tokens de rafraîchissement par défaut
+    'BLACKLIST_AFTER_ROTATION': True,               # Mettre sur liste noire les anciens tokens de rafraîchissement après rotation
+    'UPDATE_LAST_LOGIN': False,                     # Ne pas mettre à jour le champ last_login de l'utilisateur
+
+    'ALGORITHM': 'HS256',                           # Algorithme de signature
+    'SIGNING_KEY': SECRET_KEY,             # Clé secrète utilisée pour signer les tokens
+    'VERIFYING_KEY': None,                          # Clé de vérification (None si la même que la clé de signature)
+    'AUDIENCE': None,                               # Audience du token
+    'ISSUER': None,                                 # Émetteur du token
+
+    'AUTH_HEADER_TYPES': ('Bearer',),               # Type d'en-tête d'authentification (ex: Authorization: Bearer <token>)
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',       # Nom de l'en-tête HTTP
+
+    'USER_ID_FIELD': 'id',                          # Champ de l'utilisateur utilisé comme ID dans le token
+    'USER_ID_CLAIM': 'user_id',                     # Nom de la revendication de l'ID utilisateur dans le token
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+
+    'JTI_CLAIM': 'jti',                             # Identifiant unique du token JWT
+
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5), # Durée de vie pour les tokens coulissants
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1), # Durée de vie du rafraîchissement des tokens coulissants
+}
 
 
 # Internationalization
