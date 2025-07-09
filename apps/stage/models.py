@@ -1,57 +1,38 @@
-from django.db import models
-from django.conf import settings
-from  apps.employees.models import Employe
-from django.urls import reverse
-from  apps.postes.models import Poste
-from django.utils.text import slugify
+# stage/models.py
 
-class PeriodeStage(models.Model):
-    date_start = models.DateField(verbose_name="Date de Debut")
-    date_end = models.DateField(verbose_name="Date de Fin")
-    stagiaire = models.ForeignKey('Stagiaire',on_delete=models.PROTECT)
-    poste = models.ForeignKey(Poste,on_delete=models.PROTECT)
-    nombre_stagiaire = models.DecimalField(max_digits=10, decimal_places=0,)
-    def save(self,*args,**kwargs):
-        
-        self.nombre_stagiaire += 1
-        super().save(*args,**kwargs)
-    
+from django.db import models
+from apps.employees.models import Employe # Importe le modèle Employe
+from apps.postes.models import Poste # Importe le modèle Poste
+from django.utils.text import slugify # Utilisé pour générer le username unique
 
 class Stagiaire(models.Model):
+    """
+    Modèle représentant un stagiaire au sein de l'entreprise.
+    """
     CONTRAT_CHOICES = (
-        ('Stage Académique', 'Stage Académique'),
-        ('Stage Professionnel', 'Stage Professionnel'),
-        ('Stage Réemployé', 'Stage Réemployé'),
+        ("Stage Académique", "Stage Académique"),
+        ("Stage Professionnel", "Stage Professionnel"),
+        ("Stage Réemployé", "Stage Réemployé"),
     )
     STATUT_CHOICES = (
-        ('actif', 'Actif'),
-        ('inactif', 'Inactif'),
+        ("actif", "Actif"),
+        ("inactif", "Inactif"),
     )
 
-    # user = models.OneToOneField(
-    #     settings.AUTH_USER_MODEL,
-    #     on_delete=models.CASCADE,
-    #     verbose_name="Utilisateur"
-    # )
-    matricule = models.CharField(max_length=20, unique=True, verbose_name="Matricule")
-    # poste = models.CharField(max_length=100, verbose_name="Poste")
-    poste = models.ForeignKey(Poste,on_delete=models.PROTECT)
-    # username = models.CharField(max_length=20, unique=True, verbose_name="Nom complet")
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    username = models.CharField(max_length=100,unique=True,blank=True)
-    
-    encadreur = models.ForeignKey(
-        Employe,
-        on_delete=models.PROTECT,
-        related_name="stagiaires_encadres",
-        verbose_name="Encadreur"
-    )
-    contrat_type = models.CharField(max_length=30, choices=CONTRAT_CHOICES, verbose_name="Type de contrat")
-    date_joined = models.DateField(verbose_name="Date d'embauche")
+    first_name = models.CharField(max_length=100, verbose_name="Prénom")
+    last_name = models.CharField(max_length=100, verbose_name="Nom")
+    # Le champ 'username' est généré automatiquement et est unique pour chaque stagiaire
+    username = models.CharField(max_length=100, unique=True, blank=True, verbose_name="Nom d'utilisateur unique")
     matricule = models.CharField(max_length=20, unique=True, verbose_name="Matricule")
     poste = models.ForeignKey(Poste, on_delete=models.PROTECT, verbose_name="Poste")
-    # departement = models.CharField(max_length=100, verbose_name="Département")
+    encadreur = models.ForeignKey(
+        Employe,
+        on_delete=models.PROTECT, # Empêche la suppression d'un employé s'il encadre encore des stagiaires
+        related_name="stagiaires_encadres", # Permet d'accéder aux stagiaires encadrés par un employé (ex: employe.stagiaires_encadres.all())
+        verbose_name="Encadreur",
+    )
+    type_contrat = models.CharField(max_length=30, choices=CONTRAT_CHOICES, verbose_name="Type de contrat")
+    date_debut_stage = models.DateField(verbose_name="Date de début de stage")
     adresse_personnelle = models.TextField(blank=True, null=True, verbose_name="Adresse personnelle")
     tel_personnelle = models.CharField(max_length=12, blank=True, null=True, verbose_name="Téléphone personnel")
     niveau_scolaire = models.CharField(max_length=100, blank=True, null=True, verbose_name="Niveau scolaire")
@@ -60,39 +41,68 @@ class Stagiaire(models.Model):
     tel_professionnel = models.CharField(max_length=150, blank=True, null=True, verbose_name="Téléphone professionnel")
     email_professionnel = models.EmailField(blank=True, null=True, verbose_name="Email professionnel")
     email_personnel = models.EmailField(blank=True, null=True, verbose_name="Email personnel")
-    linkedin = models.URLField(blank=True, null=True, verbose_name="Profil LinkedIn")
-    salaire_base = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Salaire de base")
-    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='actif', verbose_name="Statut")
-    date_sortie = models.DateField(blank=True, null=True, verbose_name="Date de sortie")
-    # last_login
-    # is_active
+    # linkedin = models.URLField(blank=True, null=True, verbose_name="Profil LinkedIn")
+    salaire_base = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Allocation de stage")
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default="actif", verbose_name="Statut")
+    date_fin_stage = models.DateField(blank=True, null=True, verbose_name="Date de fin de stage")
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True) # Date de création automatique
+    updated_at = models.DateTimeField(auto_now=True)     # Date de dernière mise à jour automatique
 
     class Meta:
-        ordering = ['user__last_name', 'user__first_name']
+        ordering = ["last_name", "first_name"] # Ordonne les stagiaires par nom de famille, puis prénom
         verbose_name = "Stagiaire"
         verbose_name_plural = "Stagiaires"
-        
-        
-      
-    def save(self,*args,**kwargs):
-        
-        if not self.username:
-            username = slugify(f"{self.first_name} {self.last_name}")
-            ex = __class__.objects.filter(username=username).exists()
-            
-            while ex:
-                i = len(__class__.objects.filter(first_name=self.first_name,last_name=self.last_name))
-                username = slugify(f'{self.first_name} {self.last_name} copie {i+1}')
-                ex = __class__.objects.filter(username=username).exists()
-            self.username = username
-        super().save(*args,**kwargs)
-       
-
-    def get_absolute_url(self):
-        return reverse('stagiaire_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return f"{self.user.get_full_name()} ({self.matricule})"
+        """Retourne une représentation en chaîne de caractères du stagiaire."""
+        return f"{self.first_name} {self.last_name} ({self.matricule})"
+
+    def save(self, *args, **kwargs):
+        """
+        Surcharge de la méthode save pour générer un 'username' unique si non fourni.
+        Le 'username' est basé sur le prénom et le nom, avec un suffixe numérique si nécessaire pour l'unicité.
+        """
+        if not self.username:
+            # Crée un 'username' de base à partir du prénom et du nom (en minuscules et slugifié)
+            base_username = slugify(f"{self.first_name} {self.last_name}")
+            username = base_username
+            num = 1
+            # Boucle tant que le 'username' généré existe déjà
+            while Stagiaire.objects.filter(username=username).exists():
+                username = f"{base_username}-{num}" # Ajoute un suffixe numérique
+                num += 1
+            self.username = username # Assigne le 'username' unique
+        super().save(*args, **kwargs) # Appelle la méthode save originale du modèle
+
+
+class PeriodeStage(models.Model):
+    """
+    Modèle pour enregistrer les périodes de stage d'un stagiaire.
+    """
+    stagiaire = models.ForeignKey("Stagiaire", on_delete=models.PROTECT, verbose_name="Stagiaire")
+    poste = models.ForeignKey(Poste, on_delete=models.PROTECT, verbose_name="Poste")
+    date_debut = models.DateField(verbose_name="Date de Début")
+    date_fin = models.DateField(verbose_name="Date de Fin")
+    
+    created_at = models.DateTimeField(auto_now_add=True) # Date de création automatique
+    updated_at = models.DateTimeField(auto_now=True)     # Date de dernière mise à jour automatique
+
+    class Meta:
+        verbose_name = "Période de Stage"
+        verbose_name_plural = "Périodes de Stage"
+        ordering = ["-date_debut"] # Ordonne les périodes de stage par date de début décroissante
+
+    def __str__(self):
+        """Retourne une représentation en chaîne de caractères de la période de stage."""
+        # Affiche le nom du stagiaire et le poste associé pour une meilleure lisibilité
+        return f"Période pour {self.stagiaire.first_name} {self.stagiaire.last_name} ({self.poste.nom})"
+
+    def clean(self):
+        """
+        Validation personnalisée au niveau du modèle pour s'assurer que la date de fin est après la date de début.
+        Cette validation est appelée par form.is_valid() ou model.full_clean().
+        """
+        from django.core.exceptions import ValidationError
+        if self.date_debut and self.date_fin and self.date_fin < self.date_debut:
+            raise ValidationError("La date de fin doit être postérieure à la date de début.")

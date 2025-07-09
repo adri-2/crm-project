@@ -1,39 +1,24 @@
-from django.shortcuts import render
-from rest_framework import generics
-from .models import User, Candidat
-from .serializers import UserListSerializer, UserDetailSerializer, CandidatListSerializer, CandidatDetailSerializer
-from .permissions import IsAdminRHManager, IsSelfOrAdminRHManager
+# users/views.py
 
-class UserListView(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserListSerializer
-    permission_classes = [IsAdminRHManager]
+from rest_framework import viewsets, permissions
+from .models import User
+from .serializers import UserListSerializer, UserCRUDSerializer
+from .permissions import IsAdminOrRH # Importe la permission personnalisée
 
-class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserDetailSerializer
-    permission_classes = [IsSelfOrAdminRHManager | IsAdminRHManager]
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet pour gérer les utilisateurs.
+    Seuls les administrateurs et les RH peuvent gérer les utilisateurs.
+    """
+    queryset = User.objects.all().order_by('-date_joined') # Ordonne par date d'inscription
+    permission_classes = [IsAdminOrRH] # Seuls les admins et RH peuvent accéder à ce ViewSet
 
-    def get_queryset(self):
-        user = self.request.user
-        if user.role in ['admin', 'rh', 'manager']:
-            return User.objects.all()
-        # Stagiaire/employé : ne peut voir que lui-même
-        return User.objects.filter(pk=user.pk)
-
-class CandidatListView(generics.ListAPIView):
-    serializer_class = CandidatListSerializer
-    permission_classes = [IsAdminRHManager]
-    def get_queryset(self):
-        user = self.request.user
-        if user.role in ['admin', 'rh', 'manager']:
-            return Candidat.objects.all()
-        # Stagiaire/employé : ne voit que ses propres candidatures
-        return Candidat.objects.filter(user=user)
-
-class CandidatDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Candidat.objects.all()
-    serializer_class = CandidatDetailSerializer
-    permission_classes = [IsAdminRHManager]
-
-# Create your views here.
+    def get_serializer_class(self):
+        """
+        Retourne le serializer approprié en fonction de l'action de la vue.
+        - Pour la liste, utilise UserListSerializer (lecture simple).
+        - Pour les autres actions (création, détail, mise à jour, suppression), utilise UserCRUDSerializer.
+        """
+        if self.action == 'list':
+            return UserListSerializer
+        return UserCRUDSerializer
