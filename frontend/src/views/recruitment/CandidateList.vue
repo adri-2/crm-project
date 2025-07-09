@@ -8,32 +8,52 @@
     >
       <div>
         <h2 class="text-2xl font-bold text-gray-800 mb-1">Candidatures</h2>
-        <!-- <p class="text-sm text-gray-600 max-w-lg">
-          Liste complète des candidatures avec les informations détaillées du
-          candidat et leur statut actuel.
-        </p> -->
       </div>
 
-      <RouterLink
-        to="/recruitment/candidates/new"
-        class="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md text-sm transition-colors duration-200 ease-in-out shadow-md hover:shadow-lg"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4 mr-2"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
+      <div class="flex items-center gap-4">
+        <button
+          v-if="selectedCandidats.length > 0"
+          @click="confirmDeleteSelectedCandidatures"
+          class="inline-flex items-center px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md text-sm transition-colors duration-200 ease-in-out shadow-md hover:shadow-lg"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        Nouvelle Candidature
-      </RouterLink>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+          </svg>
+          Supprimer la sélection ({{ selectedCandidats.length }})
+        </button>
+
+        <RouterLink
+          to="/recruitment/candidates/new"
+          class="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md text-sm transition-colors duration-200 ease-in-out shadow-md hover:shadow-lg"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          Nouvelle Candidature
+        </RouterLink>
+      </div>
     </div>
 
     <div class="mb-4 flex flex-col sm:flex-row gap-4">
@@ -71,25 +91,6 @@
       </select>
     </div>
 
-    <!-- <div v-if="loading" class="h-full w-full flex items-center justify-center">
-      <p class="text-gray-500">Chargement des candidatures...</p>
-    </div>
-    <div
-      v-else-if="error"
-      class="h-full w-full flex items-center justify-center"
-    >
-      <p class="text-red-500">
-        Erreur lors du chargement des données : {{ error }}
-      </p>
-    </div>
-    <div
-      v-else-if="filteredCandidats.length === 0"
-      class="h-full w-full flex items-center justify-center"
-    >
-      <p class="text-gray-500">
-        Aucune candidature trouvée pour les critères sélectionnés.
-      </p>
-    </div> -->
     <div
       class="overflow-x-auto overflow-y-auto bg-white flex flex-col grow border border-gray-200 rounded-lg"
     >
@@ -99,7 +100,15 @@
         <thead
           class="bg-gray-50 text-xs uppercase text-gray-500 sticky top-0 z-10"
         >
-          <tr class="">
+          <tr>
+            <th class="px-6 py-3">
+              <input
+                type="checkbox"
+                :checked="selectAll"
+                @change="toggleSelectAll"
+                class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+              />
+            </th>
             <th class="px-6 whitespace-nowrap py-3 font-medium tracking-wider">
               Nom du Candidat
             </th>
@@ -142,7 +151,7 @@
         </thead>
         <tbody class="divide-y divide-gray-200">
           <tr v-if="loading" class="text-center text-gray-500 py-4">
-            <td colspan="6" class="px-6 py-4 whitespace-nowrap">
+            <td colspan="13" class="px-6 py-4 whitespace-nowrap">
               Chargement des offres des candidatures...
             </td>
           </tr>
@@ -150,7 +159,7 @@
             v-else-if="filteredCandidats.length === 0 && !loading"
             class="text-center text-gray-500 py-4"
           >
-            <td colspan="10" class="px-6 py-4 whitespace-nowrap">
+            <td colspan="13" class="px-6 py-4 whitespace-nowrap">
               Aucune candidature trouvée pour les critères sélectionnés.
             </td>
           </tr>
@@ -159,6 +168,14 @@
             :key="app.id"
             class="hover:bg-gray-50 transition-colors duration-150 ease-in-out"
           >
+            <td class="px-6 py-4 whitespace-nowrap">
+              <input
+                type="checkbox"
+                :value="app.id"
+                v-model="selectedCandidats"
+                class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+              />
+            </td>
             <td
               class="px-6 py-4 whitespace-nowrap font-medium text-gray-900 flex items-center"
             >
@@ -186,7 +203,9 @@
               {{ app.evaluation || '-' }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap">{{ app.email }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ app.phone || '-' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              {{ app.phone || '-' }}
+            </td>
             <td class="px-6 py-4 whitespace-nowrap">
               {{ app.recruiter || '-' }}
             </td>
@@ -206,18 +225,6 @@
               </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right">
-              <!-- <button
-                @click="viewCandidature(app.id)"
-                class="text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer hover:underline text-sm"
-              >
-                Voir
-              </button>
-              <button
-                @click="editCandidature(app.id)"
-                class="ml-4 text-gray-600 hover:text-gray-800 font-medium cursor-pointer hover:underline text-sm"
-              >
-                Éditer
-              </button> -->
               <button
                 @click="confirmDeleteCandidature(app.id)"
                 class="ml-4 text-red-600 hover:text-red-800 font-medium cursor-pointer hover:underline text-sm"
@@ -259,7 +266,7 @@
               'px-4 py-2 text-sm rounded-md border',
               page === currentPage
                 ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-100',
             ]"
           >
             {{ page }}
@@ -279,7 +286,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
-import { RouterLink } from 'vue-router'; // Assurez-vous que vue-router est bien installé et configuré
+import { RouterLink } from 'vue-router';
 
 // --- Données et États ---
 const perPage = 10; // Nombre de candidatures par page
@@ -290,9 +297,8 @@ const filterPosition = ref(''); // Filtre par poste
 const loading = ref(true); // État de chargement des données
 const error = ref(null); // Message d'erreur
 const isMobile = ref(false); // Pour adapter le min-width sur mobile
-
-// Données des candidatures (simulées - à remplacer par un appel API)
-const candidats = ref([]); // Initialement vide, sera rempli par fetchData
+const candidats = ref([]); // Données des candidatures
+const selectedCandidats = ref([]); // New: Array to store IDs of selected candidates
 
 // --- Détection Mobile (pour ajuster le style si besoin) ---
 onMounted(() => {
@@ -319,327 +325,327 @@ const fetchCandidatures = async () => {
     // candidats.value = data;
 
     // Données fictives pour la démo
-    await new Promise(resolve => setTimeout(resolve, 800)); // Simule un délai réseau
+    await new Promise((resolve) => setTimeout(resolve, 800)); // Simule un délai réseau
     candidats.value = [
       {
         id: 1,
-        name: "Jean Dupont",
-        applied_at: "2025-05-10",
-        position: "Développeur Backend",
-        status: "En cours",
-        rejection_reason: "",
-        evaluation: "4.5/5",
-        email: "jean.dupont@example.com",
-        tags: ["PHP", "Symfony", "Expérimenté"],
-        recruiter: "Sophie Martin",
-        phone: "+33 6 12 34 56 78",
-        medium: "LinkedIn",
-        source: "Annonce en ligne",
-        avatar: 'https://randomuser.me/api/portraits/men/1.jpg'
+        name: 'Jean Dupont',
+        applied_at: '2025-05-10',
+        position: 'Développeur Backend',
+        status: 'En cours',
+        rejection_reason: '',
+        evaluation: '4.5/5',
+        email: 'jean.dupont@example.com',
+        tags: ['PHP', 'Symfony', 'Expérimenté'],
+        recruiter: 'Sophie Martin',
+        phone: '+33 6 12 34 56 78',
+        medium: 'LinkedIn',
+        source: 'Annonce en ligne',
+        avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
       },
       {
         id: 2,
-        name: "Fatou Ndiaye",
-        applied_at: "2025-05-05",
-        position: "Chargée RH",
-        status: "Refusé",
-        rejection_reason: "Manque d'expérience",
-        evaluation: "3/5",
-        email: "fatou.ndiaye@example.com",
-        tags: ["Junior", "Motivée"],
-        recruiter: "David Kamga",
-        phone: "+221 77 123 45 67",
-        medium: "Site entreprise",
-        source: "Cooptation",
-        avatar: 'https://randomuser.me/api/portraits/women/2.jpg'
+        name: 'Fatou Ndiaye',
+        applied_at: '2025-05-05',
+        position: 'Chargée RH',
+        status: 'Refusé',
+        rejection_reason: 'Manque d\'expérience',
+        evaluation: '3/5',
+        email: 'fatou.ndiaye@example.com',
+        tags: ['Junior', 'Motivée'],
+        recruiter: 'David Kamga',
+        phone: '+221 77 123 45 67',
+        medium: 'Site entreprise',
+        source: 'Cooptation',
+        avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
       },
       {
         id: 3,
-        name: "Ali Bongo",
-        applied_at: "2025-04-28",
-        position: "Designer UI",
-        status: "Accepté",
-        rejection_reason: "",
-        evaluation: "5/5",
-        email: "ali.bongo@example.com",
-        tags: ["UI/UX", "React", "Disponible"],
-        recruiter: "Léa Traoré",
-        phone: "+241 06 00 00 00",
-        medium: "Indeed",
-        source: "Stage précédent",
-        avatar: 'https://randomuser.me/api/portraits/men/3.jpg'
+        name: 'Ali Bongo',
+        applied_at: '2025-04-28',
+        position: 'Designer UI',
+        status: 'Accepté',
+        rejection_reason: '',
+        evaluation: '5/5',
+        email: 'ali.bongo@example.com',
+        tags: ['UI/UX', 'React', 'Disponible'],
+        recruiter: 'Léa Traoré',
+        phone: '+241 06 00 00 00',
+        medium: 'Indeed',
+        source: 'Stage précédent',
+        avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
       },
       {
         id: 4,
-        name: "Amélie Dubois",
-        applied_at: "2025-06-01",
-        position: "Chef de Projet IT",
-        status: "Entretien",
-        rejection_reason: "",
-        evaluation: "4/5",
-        email: "amelie.dubois@example.com",
-        tags: ["Agile", "Scrum"],
-        recruiter: "Sophie Martin",
-        phone: "+33 7 98 76 54 32",
-        medium: "Recommandation",
-        source: "Bouche-à-oreille",
-        avatar: 'https://randomuser.me/api/portraits/women/4.jpg'
+        name: 'Amélie Dubois',
+        applied_at: '2025-06-01',
+        position: 'Chef de Projet IT',
+        status: 'Entretien',
+        rejection_reason: '',
+        evaluation: '4/5',
+        email: 'amelie.dubois@example.com',
+        tags: ['Agile', 'Scrum'],
+        recruiter: 'Sophie Martin',
+        phone: '+33 7 98 76 54 32',
+        medium: 'Recommandation',
+        source: 'Bouche-à-oreille',
+        avatar: 'https://randomuser.me/api/portraits/women/4.jpg',
       },
       {
         id: 5,
-        name: "Marc Durand",
-        applied_at: "2025-05-20",
-        position: "Consultant SEO",
-        status: "En attente",
-        rejection_reason: "",
-        evaluation: "",
-        email: "marc.durand@example.com",
-        tags: ["SEO", "Marketing"],
-        recruiter: "David Kamga",
-        phone: "+33 6 54 32 10 98",
-        medium: "Indeed",
-        source: "CVthèque",
-        avatar: 'https://randomuser.me/api/portraits/men/5.jpg'
+        name: 'Marc Durand',
+        applied_at: '2025-05-20',
+        position: 'Consultant SEO',
+        status: 'En attente',
+        rejection_reason: '',
+        evaluation: '',
+        email: 'marc.durand@example.com',
+        tags: ['SEO', 'Marketing'],
+        recruiter: 'David Kamga',
+        phone: '+33 6 54 32 10 98',
+        medium: 'Indeed',
+        source: 'CVthèque',
+        avatar: 'https://randomuser.me/api/portraits/men/5.jpg',
       },
       {
         id: 6,
-        name: "Sarah Leclerc",
-        applied_at: "2025-04-15",
-        position: "Développeur Frontend",
-        status: "Refusé",
-        rejection_reason: "Profil pas adapté",
-        evaluation: "2.5/5",
-        email: "sarah.leclerc@example.com",
-        tags: ["VueJS", "Junior"],
-        recruiter: "Léa Traoré",
-        phone: "+33 6 99 88 77 66",
-        medium: "LinkedIn",
-        source: "Annonce en ligne",
-        avatar: 'https://randomuser.me/api/portraits/women/6.jpg'
+        name: 'Sarah Leclerc',
+        applied_at: '2025-04-15',
+        position: 'Développeur Frontend',
+        status: 'Refusé',
+        rejection_reason: 'Profil pas adapté',
+        evaluation: '2.5/5',
+        email: 'sarah.leclerc@example.com',
+        tags: ['VueJS', 'Junior'],
+        recruiter: 'Léa Traoré',
+        phone: '+33 6 99 88 77 66',
+        medium: 'LinkedIn',
+        source: 'Annonce en ligne',
+        avatar: 'https://randomuser.me/api/portraits/women/6.jpg',
       },
       {
         id: 7,
-        name: "Kevin Dubois",
-        applied_at: "2025-06-15",
-        position: "Data Scientist",
-        status: "Nouveau",
-        rejection_reason: "",
-        evaluation: "",
-        email: "kevin.dubois@example.com",
-        tags: ["Python", "Machine Learning"],
-        recruiter: "Sophie Martin",
-        phone: "+33 6 11 22 33 44",
-        medium: "Plateforme recrutement",
-        source: "Candidature spontanée",
-        avatar: 'https://randomuser.me/api/portraits/men/7.jpg'
+        name: 'Kevin Dubois',
+        applied_at: '2025-06-15',
+        position: 'Data Scientist',
+        status: 'Nouveau',
+        rejection_reason: '',
+        evaluation: '',
+        email: 'kevin.dubois@example.com',
+        tags: ['Python', 'Machine Learning'],
+        recruiter: 'Sophie Martin',
+        phone: '+33 6 11 22 33 44',
+        medium: 'Plateforme recrutement',
+        source: 'Candidature spontanée',
+        avatar: 'https://randomuser.me/api/portraits/men/7.jpg',
       },
       {
         id: 8,
-        name: "Léa Morel",
-        applied_at: "2025-06-10",
-        position: "UX Designer",
-        status: "En cours",
-        rejection_reason: "",
-        evaluation: "4/5",
-        email: "lea.morel@example.com",
-        tags: ["Figma", "Design System"],
-        recruiter: "David Kamga",
-        phone: "+33 6 77 66 55 44",
-        medium: "Dribbble",
-        source: "Portfolio",
-        avatar: 'https://randomuser.me/api/portraits/women/8.jpg'
+        name: 'Léa Morel',
+        applied_at: '2025-06-10',
+        position: 'UX Designer',
+        status: 'En cours',
+        rejection_reason: '',
+        evaluation: '4/5',
+        email: 'lea.morel@example.com',
+        tags: ['Figma', 'Design System'],
+        recruiter: 'David Kamga',
+        phone: '+33 6 77 66 55 44',
+        medium: 'Dribbble',
+        source: 'Portfolio',
+        avatar: 'https://randomuser.me/api/portraits/women/8.jpg',
       },
       {
         id: 9,
-        name: "Ahmed Khan",
-        applied_at: "2025-05-25",
-        position: "Ingénieur DevOps",
-        status: "Entretien",
-        rejection_reason: "",
-        evaluation: "4.5/5",
-        email: "ahmed.khan@example.com",
-        tags: ["Docker", "Kubernetes"],
-        recruiter: "Léa Traoré",
-        phone: "+33 6 55 44 33 22",
-        medium: "Jobboard",
-        source: "Recherche proactive",
-        avatar: 'https://randomuser.me/api/portraits/men/9.jpg'
+        name: 'Ahmed Khan',
+        applied_at: '2025-05-25',
+        position: 'Ingénieur DevOps',
+        status: 'Entretien',
+        rejection_reason: '',
+        evaluation: '4.5/5',
+        email: 'ahmed.khan@example.com',
+        tags: ['Docker', 'Kubernetes'],
+        recruiter: 'Léa Traoré',
+        phone: '+33 6 55 44 33 22',
+        medium: 'Jobboard',
+        source: 'Recherche proactive',
+        avatar: 'https://randomuser.me/api/portraits/men/9.jpg',
       },
       {
         id: 10,
-        name: "Chloé Lefevre",
-        applied_at: "2025-05-18",
-        position: "Responsable Commercial",
-        status: "En attente",
-        rejection_reason: "",
-        evaluation: "",
-        email: "chloe.lefevre@example.com",
-        tags: ["Vente", "B2B"],
-        recruiter: "Sophie Martin",
-        phone: "+33 6 33 22 11 00",
-        medium: "LinkedIn",
-        source: "Annonce en ligne",
-        avatar: 'https://randomuser.me/api/portraits/women/10.jpg'
+        name: 'Chloé Lefevre',
+        applied_at: '2025-05-18',
+        position: 'Responsable Commercial',
+        status: 'En attente',
+        rejection_reason: '',
+        evaluation: '',
+        email: 'chloe.lefevre@example.com',
+        tags: ['Vente', 'B2B'],
+        recruiter: 'Sophie Martin',
+        phone: '+33 6 33 22 11 00',
+        medium: 'LinkedIn',
+        source: 'Annonce en ligne',
+        avatar: 'https://randomuser.me/api/portraits/women/10.jpg',
       },
-       {
+      {
         id: 11,
-        name: "Louis Moreau",
-        applied_at: "2025-05-12",
-        position: "Développeur Fullstack",
-        status: "En cours",
-        rejection_reason: "",
-        evaluation: "4/5",
-        email: "louis.moreau@example.com",
-        tags: ["NodeJS", "React", "Senior"],
-        recruiter: "David Kamga",
-        phone: "+33 6 45 67 89 01",
-        medium: "GitHub",
-        source: "Profil en ligne",
-        avatar: 'https://randomuser.me/api/portraits/men/11.jpg'
+        name: 'Louis Moreau',
+        applied_at: '2025-05-12',
+        position: 'Développeur Fullstack',
+        status: 'En cours',
+        rejection_reason: '',
+        evaluation: '4/5',
+        email: 'louis.moreau@example.com',
+        tags: ['NodeJS', 'React', 'Senior'],
+        recruiter: 'David Kamga',
+        phone: '+33 6 45 67 89 01',
+        medium: 'GitHub',
+        source: 'Profil en ligne',
+        avatar: 'https://randomuser.me/api/portraits/men/11.jpg',
       },
       {
         id: 12,
-        name: "Manon Roussel",
-        applied_at: "2025-06-03",
-        position: "Chargée de Communication",
-        status: "Nouveau",
-        rejection_reason: "",
-        evaluation: "",
-        email: "manon.roussel@example.com",
-        tags: ["Marketing Digital", "Réseaux Sociaux"],
-        recruiter: "Léa Traoré",
-        phone: "+33 6 23 45 67 89",
-        medium: "Indeed",
-        source: "Candidature spontanée",
-        avatar: 'https://randomuser.me/api/portraits/women/12.jpg'
+        name: 'Manon Roussel',
+        applied_at: '2025-06-03',
+        position: 'Chargée de Communication',
+        status: 'Nouveau',
+        rejection_reason: '',
+        evaluation: '',
+        email: 'manon.roussel@example.com',
+        tags: ['Marketing Digital', 'Réseaux Sociaux'],
+        recruiter: 'Léa Traoré',
+        phone: '+33 6 23 45 67 89',
+        medium: 'Indeed',
+        source: 'Candidature spontanée',
+        avatar: 'https://randomuser.me/api/portraits/women/12.jpg',
       },
-       {
+      {
         id: 13,
-        name: "Hugo Bernard",
-        applied_at: "2025-05-29",
-        position: "Comptable",
-        status: "En cours",
-        rejection_reason: "",
-        evaluation: "3.5/5",
-        email: "hugo.bernard@example.com",
-        tags: ["Expert", "Sage"],
-        recruiter: "Sophie Martin",
-        phone: "+33 6 98 76 54 32",
-        medium: "Recommandation",
-        source: "Partenaire",
-        avatar: 'https://randomuser.me/api/portraits/men/13.jpg'
+        name: 'Hugo Bernard',
+        applied_at: '2025-05-29',
+        position: 'Comptable',
+        status: 'En cours',
+        rejection_reason: '',
+        evaluation: '3.5/5',
+        email: 'hugo.bernard@example.com',
+        tags: ['Expert', 'Sage'],
+        recruiter: 'Sophie Martin',
+        phone: '+33 6 98 76 54 32',
+        medium: 'Recommandation',
+        source: 'Partenaire',
+        avatar: 'https://randomuser.me/api/portraits/men/13.jpg',
       },
       {
         id: 14,
-        name: "Emma Laurent",
-        applied_at: "2025-05-01",
-        position: "Assistant Administratif",
-        status: "Refusé",
-        rejection_reason: "Compétences linguistiques insuffisantes",
-        evaluation: "2/5",
-        email: "emma.laurent@example.com",
-        tags: ["Bureautique"],
-        recruiter: "David Kamga",
-        phone: "+33 6 87 65 43 21",
-        medium: "Pôle Emploi",
-        source: "Annonce en ligne",
-        avatar: 'https://randomuser.me/api/portraits/women/14.jpg'
+        name: 'Emma Laurent',
+        applied_at: '2025-05-01',
+        position: 'Assistant Administratif',
+        status: 'Refusé',
+        rejection_reason: 'Compétences linguistiques insuffisantes',
+        evaluation: '2/5',
+        email: 'emma.laurent@example.com',
+        tags: ['Bureautique'],
+        recruiter: 'David Kamga',
+        phone: '+33 6 87 65 43 21',
+        medium: 'Pôle Emploi',
+        source: 'Annonce en ligne',
+        avatar: 'https://randomuser.me/api/portraits/women/14.jpg',
       },
       {
         id: 15,
-        name: "Lucas Garcia",
-        applied_at: "2025-06-20",
-        position: "Architecte Logiciel",
-        status: "Nouveau",
-        rejection_reason: "",
-        evaluation: "",
-        email: "lucas.garcia@example.com",
-        tags: ["Cloud", "Microservices"],
-        recruiter: "Léa Traoré",
-        phone: "+33 6 76 54 32 10",
-        medium: "LinkedIn",
-        source: "Chasse",
-        avatar: 'https://randomuser.me/api/portraits/men/15.jpg'
+        name: 'Lucas Garcia',
+        applied_at: '2025-06-20',
+        position: 'Architecte Logiciel',
+        status: 'Nouveau',
+        rejection_reason: '',
+        evaluation: '',
+        email: 'lucas.garcia@example.com',
+        tags: ['Cloud', 'Microservices'],
+        recruiter: 'Léa Traoré',
+        phone: '+33 6 76 54 32 10',
+        medium: 'LinkedIn',
+        source: 'Chasse',
+        avatar: 'https://randomuser.me/api/portraits/men/15.jpg',
       },
       {
         id: 16,
-        name: "Jade Petit",
-        applied_at: "2025-06-18",
-        position: "Chef de Produit",
-        status: "Entretien",
-        rejection_reason: "",
-        evaluation: "4.8/5",
-        email: "jade.petit@example.com",
-        tags: ["Product Management", "SaaS"],
-        recruiter: "Sophie Martin",
-        phone: "+33 6 65 43 21 09",
-        medium: "Referral",
-        source: "Employé",
-        avatar: 'https://randomuser.me/api/portraits/women/16.jpg'
+        name: 'Jade Petit',
+        applied_at: '2025-06-18',
+        position: 'Chef de Produit',
+        status: 'Entretien',
+        rejection_reason: '',
+        evaluation: '4.8/5',
+        email: 'jade.petit@example.com',
+        tags: ['Product Management', 'SaaS'],
+        recruiter: 'Sophie Martin',
+        phone: '+33 6 65 43 21 09',
+        medium: 'Referral',
+        source: 'Employé',
+        avatar: 'https://randomuser.me/api/portraits/women/16.jpg',
       },
       {
         id: 17,
-        name: "Gabriel Rousseau",
-        applied_at: "2025-05-08",
-        position: "Technicien Support",
-        status: "En attente",
-        rejection_reason: "",
-        evaluation: "",
-        email: "gabriel.rousseau@example.com",
-        tags: ["Support IT", "Bilingue"],
-        recruiter: "David Kamga",
-        phone: "+33 6 54 32 10 98",
-        medium: "Indeed",
-        source: "Annonce en ligne",
-        avatar: 'https://randomuser.me/api/portraits/men/17.jpg'
+        name: 'Gabriel Rousseau',
+        applied_at: '2025-05-08',
+        position: 'Technicien Support',
+        status: 'En attente',
+        rejection_reason: '',
+        evaluation: '',
+        email: 'gabriel.rousseau@example.com',
+        tags: ['Support IT', 'Bilingue'],
+        recruiter: 'David Kamga',
+        phone: '+33 6 54 32 10 98',
+        medium: 'Indeed',
+        source: 'Annonce en ligne',
+        avatar: 'https://randomuser.me/api/portraits/men/17.jpg',
       },
       {
         id: 18,
-        name: "Lina Martin",
-        applied_at: "2025-06-05",
-        position: "Graphiste",
-        status: "Accepté",
-        rejection_reason: "",
-        evaluation: "4.7/5",
-        email: "lina.martin@example.com",
-        tags: ["Photoshop", "Illustrator"],
-        recruiter: "Léa Traoré",
-        phone: "+33 6 34 56 78 90",
-        medium: "Behance",
-        source: "Portfolio",
-        avatar: 'https://randomuser.me/api/portraits/women/18.jpg'
+        name: 'Lina Martin',
+        applied_at: '2025-06-05',
+        position: 'Graphiste',
+        status: 'Accepté',
+        rejection_reason: '',
+        evaluation: '4.7/5',
+        email: 'lina.martin@example.com',
+        tags: ['Photoshop', 'Illustrator'],
+        recruiter: 'Léa Traoré',
+        phone: '+33 6 34 56 78 90',
+        medium: 'Behance',
+        source: 'Portfolio',
+        avatar: 'https://randomuser.me/api/portraits/women/18.jpg',
       },
       {
         id: 19,
-        name: "Noah Dubois",
-        applied_at: "2025-05-16",
-        position: "Développeur Mobile",
-        status: "En cours",
-        rejection_reason: "",
-        evaluation: "4.2/5",
-        email: "noah.dubois@example.com",
-        tags: ["iOS", "Android", "Swift"],
-        recruiter: "Sophie Martin",
-        phone: "+33 6 21 09 87 65",
-        medium: "LinkedIn",
-        source: "Contact direct",
-        avatar: 'https://randomuser.me/api/portraits/men/19.jpg'
+        name: 'Noah Dubois',
+        applied_at: '2025-05-16',
+        position: 'Développeur Mobile',
+        status: 'En cours',
+        rejection_reason: '',
+        evaluation: '4.2/5',
+        email: 'noah.dubois@example.com',
+        tags: ['iOS', 'Android', 'Swift'],
+        recruiter: 'Sophie Martin',
+        phone: '+33 6 21 09 87 65',
+        medium: 'LinkedIn',
+        source: 'Contact direct',
+        avatar: 'https://randomuser.me/api/portraits/men/19.jpg',
       },
       {
         id: 20,
-        name: "Clara Lambert",
-        applied_at: "2025-06-08",
-        position: "Analyste Financier",
-        status: "Entretien",
-        rejection_reason: "",
-        evaluation: "4.1/5",
-        email: "clara.lambert@example.com",
-        tags: ["Excel", "Finance"],
-        recruiter: "David Kamga",
-        phone: "+33 6 90 87 65 43",
-        medium: "Jobboard",
-        source: "Annonce en ligne",
-        avatar: 'https://randomuser.me/api/portraits/women/20.jpg'
+        name: 'Clara Lambert',
+        applied_at: '2025-06-08',
+        position: 'Analyste Financier',
+        status: 'Entretien',
+        rejection_reason: '',
+        evaluation: '4.1/5',
+        email: 'clara.lambert@example.com',
+        tags: ['Excel', 'Finance'],
+        recruiter: 'David Kamga',
+        phone: '+33 6 90 87 65 43',
+        medium: 'Jobboard',
+        source: 'Annonce en ligne',
+        avatar: 'https://randomuser.me/api/portraits/women/20.jpg',
       },
     ];
   } catch (e) {
@@ -657,23 +663,24 @@ const filteredCandidats = computed(() => {
   // Appliquer le filtre de recherche
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(app =>
-      app.name.toLowerCase().includes(query) ||
-      app.position.toLowerCase().includes(query) ||
-      app.email.toLowerCase().includes(query) ||
-      app.recruiter.toLowerCase().includes(query) ||
-      app.tags.some(tag => tag.toLowerCase().includes(query)) // Recherche dans les tags
+    filtered = filtered.filter(
+      (app) =>
+        app.name.toLowerCase().includes(query) ||
+        app.position.toLowerCase().includes(query) ||
+        app.email.toLowerCase().includes(query) ||
+        app.recruiter.toLowerCase().includes(query) ||
+        app.tags.some((tag) => tag.toLowerCase().includes(query)) // Recherche dans les tags
     );
   }
 
   // Appliquer le filtre de statut
   if (filterStatus.value) {
-    filtered = filtered.filter(app => app.status === filterStatus.value);
+    filtered = filtered.filter((app) => app.status === filterStatus.value);
   }
 
   // Appliquer le filtre de poste
   if (filterPosition.value) {
-    filtered = filtered.filter(app => app.position === filterPosition.value);
+    filtered = filtered.filter((app) => app.position === filterPosition.value);
   }
 
   return filtered;
@@ -681,18 +688,20 @@ const filteredCandidats = computed(() => {
 
 // Récupérer tous les statuts uniques pour le filtre
 const availableStatuses = computed(() => {
-  const statuses = new Set(candidats.value.map(app => app.status));
+  const statuses = new Set(candidats.value.map((app) => app.status));
   return Array.from(statuses).sort();
 });
 
 // Récupérer tous les postes uniques pour le filtre
 const availablePositions = computed(() => {
-  const positions = new Set(candidats.value.map(app => app.position));
+  const positions = new Set(candidats.value.map((app) => app.position));
   return Array.from(positions).sort();
 });
 
 // --- Logique de Pagination ---
-const totalPages = computed(() => Math.ceil(filteredCandidats.value.length / perPage));
+const totalPages = computed(() =>
+  Math.ceil(filteredCandidats.value.length / perPage)
+);
 
 const paginatedCandidat = computed(() => {
   const start = (currentPage.value - 1) * perPage;
@@ -730,12 +739,52 @@ function goToPage(page) {
 }
 
 // Réinitialiser la page courante si les filtres réduisent le nombre total de pages
-watch([filteredCandidats, perPage], () => {
-  if (currentPage.value > totalPages.value) {
-    currentPage.value = 1;
-  }
-}, { immediate: true }); // immediate: true pour s'assurer que cela s'exécute au premier chargement si filteredCandidats est vide au début
+watch(
+  [filteredCandidats, perPage],
+  () => {
+    if (currentPage.value > totalPages.value) {
+      currentPage.value = 1;
+    }
+    // New: Clear selected candidates when filters change, as the list might change.
+    selectedCandidats.value = [];
+  },
+  { immediate: true }
+);
 
+// --- Logique de Sélection Multiple ---
+const selectAll = computed({
+  get() {
+    // True if all candidates on the current page are selected
+    return (
+      paginatedCandidat.value.length > 0 &&
+      paginatedCandidat.value.every((app) =>
+        selectedCandidats.value.includes(app.id)
+      )
+    );
+  },
+  set(value) {
+    // If value is true, add all current page candidates to selectedCandidats
+    // If value is false, remove all current page candidates from selectedCandidats
+    if (value) {
+      paginatedCandidat.value.forEach((app) => {
+        if (!selectedCandidats.value.includes(app.id)) {
+          selectedCandidats.value.push(app.id);
+        }
+      });
+    } else {
+      paginatedCandidat.value.forEach((app) => {
+        const index = selectedCandidats.value.indexOf(app.id);
+        if (index > -1) {
+          selectedCandidats.value.splice(index, 1);
+        }
+      });
+    }
+  },
+});
+
+const toggleSelectAll = (event) => {
+  selectAll.value = event.target.checked;
+};
 
 // --- Logique des Actions sur Candidature ---
 const viewCandidature = (candidatId) => {
@@ -750,21 +799,48 @@ const editCandidature = (candidatId) => {
 
 const confirmDeleteCandidature = (candidatId) => {
   if (confirm(`Êtes-vous sûr de vouloir supprimer la candidature ID ${candidatId} ?`)) {
-    deleteCandidature(candidatId);
+    deleteCandidature([candidatId]);
   }
 };
 
-const deleteCandidature = async (candidatId) => {
-  console.log(`Suppression de la candidature ID : ${candidatId}`);
-  // Exemple :
-  // try {
-  //   const response = await fetch(`/api/candidatures/${candidatId}/`, { method: 'DELETE' });
-  //   if (!response.ok) throw new Error('Échec de la suppression.');
-  //   candidats.value = candidats.value.filter(app => app.id !== candidatId); // Met à jour la liste localement
-  //   alert('Candidature supprimée avec succès !');
-  // } catch (e) {
-  //   alert(`Erreur lors de la suppression: ${e.message}`);
-  // }
+const confirmDeleteSelectedCandidatures = () => {
+  if (
+    confirm(
+      `Êtes-vous sûr de vouloir supprimer les ${selectedCandidats.value.length} candidatures sélectionnées ?`
+    )
+  ) {
+    deleteCandidature(selectedCandidats.value);
+  }
+};
+
+const deleteCandidature = async (idsToDelete) => {
+  console.log(`Tentative de suppression des candidatures IDs :`, idsToDelete);
+  try {
+    // --- SIMULATION DE SUPPRESSION API ---
+    // En production, vous feriez un appel à votre API Django ici
+    // Exemple avec fetch pour une suppression multiple (peut nécessiter un endpoint spécifique) :
+    // const response = await fetch('/api/candidatures/bulk_delete/', {
+    //   method: 'POST', // ou 'DELETE' si votre API le supporte pour les suppressions en masse
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ ids: idsToDelete }),
+    // });
+    // if (!response.ok) throw new Error('Échec de la suppression des candidatures.');
+
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Simule un délai réseau
+
+    candidats.value = candidats.value.filter(
+      (app) => !idsToDelete.includes(app.id)
+    ); // Met à jour la liste localement
+    selectedCandidats.value = selectedCandidats.value.filter(
+      (id) => !idsToDelete.includes(id)
+    ); // Clear selected ones
+
+    alert('Candidature(s) supprimée(s) avec succès !');
+  } catch (e) {
+    alert(`Erreur lors de la suppression: ${e.message}`);
+  }
 };
 
 // --- Fonctions d'aide pour le style (badges de statut) ---
@@ -797,5 +873,4 @@ const formatDate = (dateStr) => {
 
 <style scoped>
 /* Aucun style spécifique n'est nécessaire ici car Tailwind CSS gère la plupart du design. */
-/* Si vous aviez des styles très spécifiques qui ne sont pas gérés par Tailwind, vous les mettriez ici. */
 </style>

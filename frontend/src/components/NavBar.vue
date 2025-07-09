@@ -2,25 +2,27 @@
   <!-- <nav class="bg-gradient-to-r from-white shadow-xl rounded-xl mx-8 my-4"> -->
   <!-- <div class="flex items-center justify-between px-8 py-4"> -->
   <div class="flex items-baseline space-x-4  bg-white justify-between px-auto">
-    <RouterLink to="/" :class="navClass('/')"> Dashboard </RouterLink>
+    <RouterLink to="/dashboard" :class="navClass('/dashboard')">
+      Dashboard
+    </RouterLink>
     <RouterLink to="/user/list" :class="navClass('/user/list')">
-      Employée
+      Employés
     </RouterLink>
     <RouterLink to="/job/list" :class="navClass('/job/list')">
-      Poste
+      Postes
     </RouterLink>
 
     <RouterLink
       to="/recruitment/offers/list"
       :class="navClass('/recruitment/offers/list')"
     >
-      Recruitment
+      Recruitments
     </RouterLink>
     <RouterLink
       to="/recruitment/candidates/"
       :class="navClass('/recruitment/candidates/')"
     >
-      Candidature
+      Candidatures
     </RouterLink>
     <!-- <RouterLink to="/about" :class="navClass('/about')"> About </RouterLink> -->
   </div>

@@ -1,5 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br bg-white">
+  <div
+    v-if="$route.path !== '/login' && $route.path !== '/'"
+    class="min-h-screen bg-gradient-to-br bg-white"
+  >
     <nav class="bg-gradient-to-r from-white shadow-lg">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
@@ -94,29 +97,28 @@
                     aria-labelledby="user-menu-button"
                     tabindex="-1"
                   >
-                    <a
-                      href="#"
+                    <RouterLink
                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-100 hover:text-indigo-700 rounded transition"
                       role="menuitem"
                       tabindex="-1"
                       id="user-menu-item-0"
-                      >Votre profil</a
+                      >Votre profil</RouterLink
                     >
-                    <a
-                      href="#"
+                    <RouterLink
                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-100 hover:text-indigo-700 rounded transition"
                       role="menuitem"
                       tabindex="-1"
                       id="user-menu-item-1"
-                      >Paramètres</a
-                    >
-                    <a
-                      href="#"
+                      >Paramètres
+                    </RouterLink>
+
+                    <RouterLink
                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded transition"
                       role="menuitem"
                       tabindex="-1"
                       id="user-menu-item-2"
-                      >Déconnexion</a
+                      to="/"
+                      >Déconnexion</RouterLink
                     >
                   </div>
                 </transition>
@@ -135,6 +137,9 @@
         <RouterView />
       </div>
     </main>
+  </div>
+  <div v-else>
+    <RouterView />
   </div>
 </template>
 

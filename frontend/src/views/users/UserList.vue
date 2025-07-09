@@ -8,33 +8,52 @@
     >
       <div>
         <h2 class="text-2xl font-bold text-gray-800 mb-1">Employées</h2>
-        <!-- <p class="text-sm text-gray-600 max-w-lg">
-          Liste de tous les utilisateurs de votre compte, y compris leur nom,
-          titre, e-mail et rôle. Gérez facilement les informations de chaque
-          membre.
-        </p> -->
       </div>
 
-      <RouterLink
-        to="/user/new"
-        class="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md text-sm transition-colors duration-200 ease-in-out shadow-md hover:shadow-lg"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4 mr-2"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
+      <div class="flex items-center space-x-4">
+        <button
+          v-if="selectedUserIds.length > 0"
+          @click="confirmDeleteSelectedUsers"
+          class="inline-flex items-center px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md text-sm transition-colors duration-200 ease-in-out shadow-md hover:shadow-lg"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        Nouvel Utilisateur
-      </RouterLink>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+          </svg>
+          Supprimer ({{ selectedUserIds.length }})
+        </button>
+
+        <RouterLink
+          to="/user/new"
+          class="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md text-sm transition-colors duration-200 ease-in-out shadow-md hover:shadow-lg"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          Nouvel Utilisateur
+        </RouterLink>
+      </div>
     </div>
 
     <div class="mb-4 flex flex-col sm:flex-row gap-4">
@@ -65,6 +84,14 @@
           class="bg-gray-50 text-xs uppercase text-gray-500 sticky top-0 z-10"
         >
           <tr>
+            <th class="px-6 py-3 font-medium tracking-wider">
+              <input
+                type="checkbox"
+                :checked="areAllUsersSelected"
+                @change="toggleSelectAll"
+                class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out rounded border-gray-300 focus:ring-indigo-500"
+              />
+            </th>
             <th class="px-6 py-3 font-medium tracking-wider">#</th>
             <th class="px-6 py-3 font-medium tracking-wider">Nom</th>
             <th class="px-6 py-3 font-medium tracking-wider">Titre</th>
@@ -73,26 +100,34 @@
             <th class="px-6 py-3 font-medium tracking-wider">Téléphone</th>
             <th class="px-6 py-3 font-medium tracking-wider">Département</th>
 
-            <th class="px-6 py-3 font-medium tracking-wider text-right">
+            <!-- <th class="px-6 py-3 font-medium tracking-wider text-right">
               Actions
-            </th>
+            </th> -->
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
           <tr v-if="loading" class="text-center text-gray-500 py-4">
-            <td colspan="6" class="px-6 py-4">Chargement des employées...</td>
+            <td colspan="9" class="px-6 py-4">Chargement des employées...</td>
           </tr>
           <tr
             v-else-if="filteredUsers.length === 0 && !loading"
             class="text-center text-gray-500 py-4"
           >
-            <td colspan="6" class="px-6 py-4">Aucun employée trouvé.</td>
+            <td colspan="9" class="px-6 py-4">Aucun employée trouvé.</td>
           </tr>
           <tr
             v-for="user in paginatedUsers"
-            :key="user.email"
+            :key="user.id"
             class="hover:bg-gray-50 transition-colors duration-150 ease-in-out"
           >
+            <td class="px-6 py-4">
+              <input
+                type="checkbox"
+                :checked="selectedUserIds.includes(user.id)"
+                @change="toggleUserSelection(user.id)"
+                class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out rounded border-gray-300 focus:ring-indigo-500"
+              />
+            </td>
             <td class="px-6 py-4">{{ user.id }}</td>
             <td
               class="px-6 py-4 font-medium text-gray-900 flex items-center whitespace-nowrap"
@@ -105,7 +140,7 @@
               />
               {{ user.name }}
             </td>
-            <td class="px-6 py-4 text-indigo-600  whitespace-nowrap">
+            <td class="px-6 py-4 text-indigo-600  whitespace-nowrap">
               {{ user.title }}
             </td>
             <td class="px-6 py-4 text-gray-800">{{ user.email }}</td>
@@ -114,24 +149,18 @@
                 {{ user.role }}
               </span>
             </td>
-            <td class="px-6 py-4 text-gray-800  whitespace-nowrap">
+            <td class="px-6 py-4 text-gray-800  whitespace-nowrap">
               {{ user.phone }}
             </td>
             <td class="px-6 py-4 text-gray-800">{{ user.department }}</td>
-            <td class="px-6 py-4 text-right">
-              <!-- <button
-                @click="editUser(user.id)"
-                class="text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer hover:underline text-sm"
-              >
-                Éditer
-              </button> -->
+            <!-- <td class="px-6 py-4 text-right">
               <button
                 @click="confirmDeleteUser(user.id)"
                 class="ml-4 text-red-600 hover:text-red-800 font-medium cursor-pointer hover:underline text-sm"
               >
                 Supprimer
               </button>
-            </td>
+            </td> -->
           </tr>
         </tbody>
       </table>
@@ -200,6 +229,9 @@ const isMobile = ref(false); // Pour adapter le min-width sur mobile
 // Données des utilisateurs (simulées - à remplacer par un appel API)
 const users = ref([]); // Initialement vide, sera rempli par fetchData
 
+// Nouveau : État pour les utilisateurs sélectionnés
+const selectedUserIds = ref([]);
+
 // --- Détection Mobile (pour ajuster le style si besoin) ---
 onMounted(() => {
   checkIfMobile();
@@ -236,7 +268,7 @@ const fetchUsers = async () => {
       { id: '7', name: "Emily Selman", title: "VP, Expérience Utilisateur", email: "emily.selman@example.com", role: "Admin", avatar: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80', phone: "+33 6 12 34 56 78", department: "Technique", },
       { id: '8', name: "Kristin Watson", title: "Développeur Front-end", email: "kristin.watson@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1509783236416-c9ad59ae4727?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80', phone: "+33 6 12 34 56 78", department: "Technique", },
       { id: '9', name: "Jenny Wilson", title: "Designer Produit", email: "jenny.wilson@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80', phone: "+33 6 12 34 56 78", department: "Technique", },
-      { id: '10', name: "Cody Fisher", title: "Chef de Produit", email: "cody.fisher@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1502823403499-6ccfcfbd4f0e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80', phone: "+33 6 12 34 56 78", department: "Technique", },
+      { id: '10', name: "Cody Fisher", title: "Chef de Produit", email: "cody.fisher@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1502823403499-6ccfcfbd4f0e?ixlib=rb-1.2.1&ixid=eyJhcApp_idIjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80', phone: "+33 6 12 34 56 78", department: "Technique", },
       { id: '11', name: "Jane Cooper", title: "Coordinatrice Marketing", email: "jane.cooper@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29329?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80', phone: "+33 6 12 34 56 78", department: "Technique", },
       { id: '12', name: "Wade Warren", title: "Ingénieur Logiciel", email: "wade.warren@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1463453091185-6156198c8900?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80', phone: "+33 6 12 34 56 78", department: "Technique", },
       { id: '13', name: "Lindsay Walton 2", title: "Développeur Front-end", email: "lindsay.walton2@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80', phone: "+33 6 12 34 56 78", department: "Technique", },
@@ -349,8 +381,42 @@ watch([filteredUsers, perPage], () => {
   if (currentPage.value > totalPages.value) {
     currentPage.value = 1;
   }
-}, { immediate: true }); // immediate: true pour s'assurer que cela s'exécute au premier chargement si filteredUsers est vide au début
+  // Important : réinitialiser les sélections quand la liste filtrée change
+  selectedUserIds.value = [];
+}, { immediate: true });
 
+
+// --- Logique de Sélection ---
+
+// Vérifie si tous les utilisateurs de la page actuelle sont sélectionnés
+const areAllUsersSelected = computed(() => {
+  return paginatedUsers.value.length > 0 && paginatedUsers.value.every(user => selectedUserIds.value.includes(user.id));
+});
+
+// Bascule la sélection d'un utilisateur individuel
+const toggleUserSelection = (userId) => {
+  const index = selectedUserIds.value.indexOf(userId);
+  if (index > -1) {
+    selectedUserIds.value.splice(index, 1); // Désélectionner
+  } else {
+    selectedUserIds.value.push(userId); // Sélectionner
+  }
+};
+
+// Bascule la sélection de tous les utilisateurs de la page actuelle
+const toggleSelectAll = () => {
+  if (areAllUsersSelected.value) {
+    // Si tout est sélectionné, désélectionner tout
+    selectedUserIds.value = selectedUserIds.value.filter(id => !paginatedUsers.value.map(u => u.id).includes(id));
+  } else {
+    // Sinon, sélectionner tous les utilisateurs de la page actuelle qui ne le sont pas déjà
+    paginatedUsers.value.forEach(user => {
+      if (!selectedUserIds.value.includes(user.id)) {
+        selectedUserIds.value.push(user.id);
+      }
+    });
+  }
+};
 
 // --- Logique des Actions Utilisateur ---
 const editUser = (userId) => {
@@ -361,22 +427,42 @@ const editUser = (userId) => {
 
 const confirmDeleteUser = (userId) => {
   if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur avec l'ID ${userId} ?`)) {
-    deleteUser(userId);
+    deleteUsers([userId]); // Appelle la fonction de suppression générique avec un tableau
   }
 };
 
-const deleteUser = async (userId) => {
+const confirmDeleteSelectedUsers = () => {
+  if (selectedUserIds.value.length > 0 && confirm(`Êtes-vous sûr de vouloir supprimer les ${selectedUserIds.value.length} utilisateurs sélectionnés ?`)) {
+    deleteUsers(selectedUserIds.value);
+  }
+};
+
+const deleteUsers = async (idsToDelete) => {
   // Implémentez la logique de suppression ici (appel API)
-  console.log(`Suppression de l'utilisateur avec l'ID : ${userId}`);
-  // Exemple :
-  // try {
-  //   const response = await fetch(`/api/users/${userId}/`, { method: 'DELETE' });
-  //   if (!response.ok) throw new Error('Échec de la suppression.');
-  //   users.value = users.value.filter(u => u.id !== userId); // Met à jour la liste localement
-  //   alert('Utilisateur supprimé avec succès !');
-  // } catch (e) {
-  //   alert(`Erreur lors de la suppression: ${e.message}`);
-  // }
+  console.log(`Suppression des utilisateurs avec les IDs : ${idsToDelete.join(', ')}`);
+  try {
+    // SIMULATION : Filtrez les utilisateurs en local
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simule un délai réseau pour la suppression
+    users.value = users.value.filter(u => !idsToDelete.includes(u.id));
+    selectedUserIds.value = []; // Réinitialiser les sélections après suppression
+    alert('Utilisateurs supprimés avec succès !');
+
+    // En production, vous feriez des appels API pour chaque suppression ou un appel groupé
+    // Exemple pour une suppression multiple :
+    // const response = await fetch('/api/users/bulk_delete/', {
+    //   method: 'POST', // ou 'DELETE' avec un corps de requête si votre API le permet
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ ids: idsToDelete })
+    // });
+    // if (!response.ok) throw new Error('Échec de la suppression groupée.');
+    // users.value = users.value.filter(u => !idsToDelete.includes(u.id));
+    // selectedUserIds.value = [];
+    // alert('Utilisateurs supprimés avec succès !');
+
+  } catch (e) {
+    alert(`Erreur lors de la suppression: ${e.message}`);
+    console.error(e);
+  }
 };
 
 // --- Fonctions d'aide pour le style (badges de rôle) ---

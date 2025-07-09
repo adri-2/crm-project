@@ -8,32 +8,52 @@
     >
       <div>
         <h2 class="text-2xl font-bold text-gray-800 mb-1">Postes</h2>
-        <!-- <p class="text-sm text-gray-600 max-w-lg">
-          Liste complète des postes avec leurs titres, ntreprises,
-          localisations et types de contrat.
-        </p> -->
       </div>
 
-      <RouterLink
-        to="/job/new"
-        class="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md text-sm transition-colors duration-200 ease-in-out shadow-md hover:shadow-lg"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4 mr-2"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
+      <div class="flex items-center gap-4">
+        <button
+          v-if="selectedJobs.length > 0"
+          @click="confirmBulkDelete"
+          class="inline-flex items-center px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md text-sm transition-colors duration-200 ease-in-out shadow-md hover:shadow-lg"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        Nouveau Poste
-      </RouterLink>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+          </svg>
+          Supprimer la sélection ({{ selectedJobs.length }})
+        </button>
+
+        <RouterLink
+          to="/job/new"
+          class="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md text-sm transition-colors duration-200 ease-in-out shadow-md hover:shadow-lg"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          Nouveau Poste
+        </RouterLink>
+      </div>
     </div>
 
     <div class="mb-4 flex flex-col sm:flex-row gap-4">
@@ -67,25 +87,6 @@
       </select>
     </div>
 
-    <!-- <div v-if="loading" class="h-full w-full flex items-center justify-center">
-      <p class="text-gray-500">Chargement des offres d'emploi...</p>
-    </div>
-    <div
-      v-else-if="error"
-      class="h-full w-full flex items-center justify-center"
-    >
-      <p class="text-red-500">
-        Erreur lors du chargement des données : {{ error }}
-      </p>
-    </div>
-    <div
-      v-else-if="filteredJobs.length === 0"
-      class="h-full w-full flex items-center justify-center"
-    >
-      <p class="text-gray-500">
-        Aucune offre d'emploi trouvée pour les critères sélectionnés.
-      </p>
-    </div> -->
     <div
       class="overflow-x-auto overflow-y-auto bg-white flex flex-col grow border border-gray-200 rounded-lg"
     >
@@ -96,6 +97,14 @@
           class="bg-gray-50 text-xs uppercase text-gray-500 sticky top-0 z-10"
         >
           <tr>
+            <th class="px-6 py-3 font-medium tracking-wider">
+              <input
+                type="checkbox"
+                :checked="isAllSelected"
+                @change="toggleSelectAll"
+                class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+              />
+            </th>
             <th class="px-6 py-3 font-medium tracking-wider">Titre</th>
             <th class="px-6 py-3 font-medium tracking-wider">Entreprise</th>
             <th class="px-6 py-3 font-medium tracking-wider">Localisation</th>
@@ -111,13 +120,13 @@
         </thead>
         <tbody class="divide-y divide-gray-200">
           <tr v-if="loading" class="text-center text-gray-500 py-4">
-            <td colspan="6" class="px-6 py-4">Chargement des postes...</td>
+            <td colspan="8" class="px-6 py-4">Chargement des postes...</td>
           </tr>
           <tr
-            v-else-if="filteredJobs.length === 0  && !loading"
+            v-else-if="filteredJobs.length === 0 && !loading"
             class="text-center text-gray-500 py-4"
           >
-            <td colspan="6" class="px-6 py-4">
+            <td colspan="8" class="px-6 py-4">
               Aucune poste trouvée pour les critères sélectionnés.
             </td>
           </tr>
@@ -127,6 +136,14 @@
             :key="job.id"
             class="hover:bg-gray-50 transition-colors duration-150 ease-in-out"
           >
+            <td class="px-6 py-4">
+              <input
+                type="checkbox"
+                :value="job.id"
+                v-model="selectedJobs"
+                class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+              />
+            </td>
             <td class="px-6 py-4 font-medium text-gray-900">{{ job.title }}</td>
             <td class="px-6 py-4 text-indigo-700 font-semibold">
               {{ job.company }}
@@ -144,18 +161,6 @@
               </span>
             </td>
             <td class="px-6 py-4 text-right">
-              <!-- <button
-                @click="viewJob(job.id)"
-                class="text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer hover:underline text-sm"
-              >
-                Voir
-              </button>
-              <button
-                @click="editJob(job.id)"
-                class="ml-4 text-gray-600 hover:text-gray-800 font-medium cursor-pointer hover:underline text-sm"
-              >
-                Éditer
-              </button> -->
               <button
                 @click="confirmDeleteJob(job.id)"
                 class="ml-4 text-red-600 hover:text-red-800 font-medium cursor-pointer hover:underline text-sm"
@@ -197,7 +202,7 @@
               'px-4 py-2 text-sm rounded-md border',
               page === currentPage
                 ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-100',
             ]"
           >
             {{ page }}
@@ -217,7 +222,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
-import { RouterLink } from 'vue-router'; // Assurez-vous que vue-router est bien installé et configuré
+import { RouterLink } from 'vue-router';
 
 // --- Données et États ---
 const perPage = 10; // Nombre d'offres par page
@@ -228,9 +233,8 @@ const filterLocation = ref(''); // Filtre par localisation
 const loading = ref(true); // État de chargement des données
 const error = ref(null); // Message d'erreur
 const isMobile = ref(false); // Pour adapter le min-width sur mobile
-
-// Données des offres d'emploi (simulées - à remplacer par un appel API)
-const jobs = ref([]); // Initialement vide, sera rempli par fetchData
+const jobs = ref([]); // Données des offres d'emploi
+const selectedJobs = ref([]); // NOUVEAU : IDs des offres d'emploi sélectionnées
 
 // --- Détection Mobile (pour ajuster le style si besoin) ---
 onMounted(() => {
@@ -249,195 +253,187 @@ const fetchJobs = async () => {
   error.value = null;
   try {
     // --- SIMULATION D'APPEL API ---
-    // En production, vous feriez un appel à votre API Django ici
-    // Exemple avec fetch :
-    // const response = await fetch('/api/jobs/');
-    // if (!response.ok) throw new Error('Échec de la récupération des offres d\'emploi.');
-    // const data = await response.json();
-    // jobs.value = data;
-
-    // Données fictives pour la démo
-    await new Promise(resolve => setTimeout(resolve, 800)); // Simule un délai réseau
+    await new Promise((resolve) => setTimeout(resolve, 800)); // Simule un délai réseau
     jobs.value = [
       {
         id: 1,
-        title: "Frontend Developer",
-        company: "TechCorp",
-        location: "Remote",
-        type: "Full-time",
-        published_at: "2024-06-20",
-        status: "Active",
+        title: 'Frontend Developer',
+        company: 'TechCorp',
+        location: 'Remote',
+        type: 'Full-time',
+        published_at: '2024-06-20',
+        status: 'Active',
       },
       {
         id: 2,
-        title: "UI/UX Designer",
-        company: "Creative Inc.",
-        location: "Paris, France",
-        type: "Part-time",
-        published_at: "2024-06-15",
-        status: "Active",
+        title: 'UI/UX Designer',
+        company: 'Creative Inc.',
+        location: 'Paris, France',
+        type: 'Part-time',
+        published_at: '2024-06-15',
+        status: 'Active',
       },
       {
         id: 3,
-        title: "Backend Engineer",
-        company: "DevSolutions",
-        location: "Berlin, Germany",
-        type: "Full-time",
-        published_at: "2024-06-10",
-        status: "Active",
+        title: 'Backend Engineer',
+        company: 'DevSolutions',
+        location: 'Berlin, Germany',
+        type: 'Full-time',
+        published_at: '2024-06-10',
+        status: 'Active',
       },
       {
         id: 4,
-        title: "Marketing Specialist",
-        company: "MarketSmart",
-        location: "Remote",
-        type: "Freelance",
-        published_at: "2024-06-01",
-        status: "Active",
+        title: 'Marketing Specialist',
+        company: 'MarketSmart',
+        location: 'Remote',
+        type: 'Freelance',
+        published_at: '2024-06-01',
+        status: 'Active',
       },
       {
         id: 5,
-        title: "Data Analyst",
-        company: "Insights Co.",
-        location: "Dakar, Senegal",
-        type: "Full-time",
-        published_at: "2024-05-25",
-        status: "Active",
+        title: 'Data Analyst',
+        company: 'Insights Co.',
+        location: 'Dakar, Senegal',
+        type: 'Full-time',
+        published_at: '2024-05-25',
+        status: 'Active',
       },
       {
         id: 6,
-        title: "Cloud Architect",
-        company: "CloudWare",
-        location: "London, UK",
-        type: "Full-time",
-        published_at: "2024-06-22",
-        status: "Active",
+        title: 'Cloud Architect',
+        company: 'CloudWare',
+        location: 'London, UK',
+        type: 'Full-time',
+        published_at: '2024-06-22',
+        status: 'Active',
       },
       {
         id: 7,
-        title: "Product Manager",
-        company: "Innovate Solutions",
-        location: "New York, USA",
-        type: "Full-time",
-        published_at: "2024-06-18",
-        status: "Active",
+        title: 'Product Manager',
+        company: 'Innovate Solutions',
+        location: 'New York, USA',
+        type: 'Full-time',
+        published_at: '2024-06-18',
+        status: 'Active',
       },
       {
         id: 8,
-        title: "Sales Representative",
-        company: "Global Sales",
-        location: "Casablanca, Morocco",
-        type: "Contract",
-        published_at: "2024-06-12",
-        status: "Active",
+        title: 'Sales Representative',
+        company: 'Global Sales',
+        location: 'Casablanca, Morocco',
+        type: 'Contract',
+        published_at: '2024-06-12',
+        status: 'Active',
       },
       {
         id: 9,
-        title: "HR Manager",
-        company: "PeopleFirst",
-        location: "Lyon, France",
-        type: "Full-time",
-        published_at: "2024-06-05",
-        status: "Active",
+        title: 'HR Manager',
+        company: 'PeopleFirst',
+        location: 'Lyon, France',
+        type: 'Full-time',
+        published_at: '2024-06-05',
+        status: 'Active',
       },
       {
         id: 10,
-        title: "DevOps Engineer",
-        company: "DevOps Pro",
-        location: "Remote",
-        type: "Full-time",
-        published_at: "2024-05-30",
-        status: "Active",
+        title: 'DevOps Engineer',
+        company: 'DevOps Pro',
+        location: 'Remote',
+        type: 'Full-time',
+        published_at: '2024-05-30',
+        status: 'Active',
       },
       {
         id: 11,
-        title: "Cybersecurity Analyst",
-        company: "SecureNet",
-        location: "Abidjan, Côte d'Ivoire",
-        type: "Full-time",
-        published_at: "2024-06-25",
-        status: "Active",
+        title: 'Cybersecurity Analyst',
+        company: 'SecureNet',
+        location: 'Abidjan, Côte d\'Ivoire',
+        type: 'Full-time',
+        published_at: '2024-06-25',
+        status: 'Active',
       },
       {
         id: 12,
-        title: "Copywriter",
-        company: "WordGenius",
-        location: "Remote",
-        type: "Freelance",
-        published_at: "2024-06-21",
-        status: "Archived", // Example of inactive status
+        title: 'Copywriter',
+        company: 'WordGenius',
+        location: 'Remote',
+        type: 'Freelance',
+        published_at: '2024-06-21',
+        status: 'Archived',
       },
       {
         id: 13,
-        title: "Network Administrator",
-        company: "ConnectIT",
-        location: "Brussels, Belgium",
-        type: "Full-time",
-        published_at: "2024-06-19",
-        status: "Active",
+        title: 'Network Administrator',
+        company: 'ConnectIT',
+        location: 'Brussels, Belgium',
+        type: 'Full-time',
+        published_at: '2024-06-19',
+        status: 'Active',
       },
       {
         id: 14,
-        title: "Legal Advisor",
-        company: "LawFirm Inc.",
-        location: "Geneva, Switzerland",
-        type: "Part-time",
-        published_at: "2024-06-14",
-        status: "Active",
+        title: 'Legal Advisor',
+        company: 'LawFirm Inc.',
+        location: 'Geneva, Switzerland',
+        type: 'Part-time',
+        published_at: '2024-06-14',
+        status: 'Active',
       },
       {
         id: 15,
-        title: "Mobile App Developer",
-        company: "AppCreators",
-        location: "Barcelona, Spain",
-        type: "Full-time",
-        published_at: "2024-06-07",
-        status: "Active",
+        title: 'Mobile App Developer',
+        company: 'AppCreators',
+        location: 'Barcelona, Spain',
+        type: 'Full-time',
+        published_at: '2024-06-07',
+        status: 'Active',
       },
       {
         id: 16,
-        title: "Content Creator",
-        company: "Digital Spark",
-        location: "Remote",
-        type: "Freelance",
-        published_at: "2024-06-03",
-        status: "Active",
+        title: 'Content Creator',
+        company: 'Digital Spark',
+        location: 'Remote',
+        type: 'Freelance',
+        published_at: '2024-06-03',
+        status: 'Active',
       },
       {
         id: 17,
-        title: "Business Analyst",
-        company: "Strategy Corp.",
-        location: "Dubai, UAE",
-        type: "Full-time",
-        published_at: "2024-05-28",
-        status: "Active",
+        title: 'Business Analyst',
+        company: 'Strategy Corp.',
+        location: 'Dubai, UAE',
+        type: 'Full-time',
+        published_at: '2024-05-28',
+        status: 'Active',
       },
       {
         id: 18,
-        title: "Research Scientist",
-        company: "BioLabs",
-        location: "Cambridge, USA",
-        type: "Full-time",
-        published_at: "2024-05-20",
-        status: "Active",
+        title: 'Research Scientist',
+        company: 'BioLabs',
+        location: 'Cambridge, USA',
+        type: 'Full-time',
+        published_at: '2024-05-20',
+        status: 'Active',
       },
       {
         id: 19,
-        title: "Customer Support Specialist",
-        company: "ServicePro",
-        location: "Berlin, Germany",
-        type: "Part-time",
-        published_at: "2024-05-15",
-        status: "Closed", // Another example of inactive status
+        title: 'Customer Support Specialist',
+        company: 'ServicePro',
+        location: 'Berlin, Germany',
+        type: 'Part-time',
+        published_at: '2024-05-15',
+        status: 'Closed',
       },
       {
         id: 20,
-        title: "Financial Controller",
-        company: "FinanceHub",
-        location: "Paris, France",
-        type: "Full-time",
-        published_at: "2024-05-10",
-        status: "Active",
+        title: 'Financial Controller',
+        company: 'FinanceHub',
+        location: 'Paris, France',
+        type: 'Full-time',
+        published_at: '2024-05-10',
+        status: 'Active',
       },
     ];
   } catch (e) {
@@ -455,22 +451,23 @@ const filteredJobs = computed(() => {
   // Appliquer le filtre de recherche
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(job =>
-      job.title.toLowerCase().includes(query) ||
-      job.company.toLowerCase().includes(query) ||
-      job.location.toLowerCase().includes(query) ||
-      job.type.toLowerCase().includes(query)
+    filtered = filtered.filter(
+      (job) =>
+        job.title.toLowerCase().includes(query) ||
+        job.company.toLowerCase().includes(query) ||
+        job.location.toLowerCase().includes(query) ||
+        job.type.toLowerCase().includes(query)
     );
   }
 
   // Appliquer le filtre par type
   if (filterType.value) {
-    filtered = filtered.filter(job => job.type === filterType.value);
+    filtered = filtered.filter((job) => job.type === filterType.value);
   }
 
   // Appliquer le filtre par localisation
   if (filterLocation.value) {
-    filtered = filtered.filter(job => job.location === filterLocation.value);
+    filtered = filtered.filter((job) => job.location === filterLocation.value);
   }
 
   return filtered;
@@ -478,18 +475,20 @@ const filteredJobs = computed(() => {
 
 // Récupérer tous les types uniques pour le filtre
 const availableTypes = computed(() => {
-  const types = new Set(jobs.value.map(job => job.type));
+  const types = new Set(jobs.value.map((job) => job.type));
   return Array.from(types).sort();
 });
 
 // Récupérer toutes les localisations uniques pour le filtre
 const availableLocations = computed(() => {
-  const locations = new Set(jobs.value.map(job => job.location));
+  const locations = new Set(jobs.value.map((job) => job.location));
   return Array.from(locations).sort();
 });
 
 // --- Logique de Pagination ---
-const totalPages = computed(() => Math.ceil(filteredJobs.value.length / perPage));
+const totalPages = computed(() =>
+  Math.ceil(filteredJobs.value.length / perPage)
+);
 
 const paginatedJobs = computed(() => {
   const start = (currentPage.value - 1) * perPage;
@@ -527,22 +526,42 @@ function goToPage(page) {
 }
 
 // Réinitialiser la page courante si les filtres réduisent le nombre total de pages
-watch([filteredJobs, perPage], () => {
-  if (currentPage.value > totalPages.value) {
-    currentPage.value = 1;
+watch(
+  [filteredJobs, perPage],
+  () => {
+    if (currentPage.value > totalPages.value) {
+      currentPage.value = 1;
+    }
+    selectedJobs.value = []; // NOUVEAU : Désélectionner tout lors du changement de filtre/page
+  },
+  { immediate: true }
+);
+
+// --- Logique de Sélection ---
+const isAllSelected = computed(() => {
+  if (paginatedJobs.value.length === 0) return false; // NOUVEAU : Si pas de jobs, rien n'est sélectionné
+  return paginatedJobs.value.every((job) =>
+    selectedJobs.value.includes(job.id)
+  );
+});
+
+const toggleSelectAll = () => {
+  if (isAllSelected.value) {
+    selectedJobs.value = [];
+  } else {
+    selectedJobs.value = paginatedJobs.value.map((job) => job.id);
   }
-}, { immediate: true });
+};
+
+const toggleSelectAllAnnule = () => {
+  if (isAllSelected.value) {
+    selectedJobs.value = [];
+  } else {
+    selectedJobs.value = jobs.value.map((job) => job.id);
+  }
+};
 
 // --- Logique des Actions sur Offre d'Emploi ---
-const viewJob = (jobId) => {
-  console.log(`Voir les détails de l'offre d'emploi ID : ${jobId}`);
-  // Exemple: router.push({ name: 'JobDetails', params: { id: jobId } });
-};
-
-const editJob = (jobId) => {
-  console.log(`Éditer l'offre d'emploi ID : ${jobId}`);
-  // Exemple: router.push({ name: 'JobEdit', params: { id: jobId } });
-};
 
 const confirmDeleteJob = (jobId) => {
   if (confirm(`Êtes-vous sûr de vouloir supprimer l'offre d'emploi ID ${jobId} ?`)) {
@@ -552,15 +571,34 @@ const confirmDeleteJob = (jobId) => {
 
 const deleteJob = async (jobId) => {
   console.log(`Suppression de l'offre d'emploi ID : ${jobId}`);
-  // Exemple :
-  // try {
-  //   const response = await fetch(`/api/jobs/${jobId}/`, { method: 'DELETE' });
-  //   if (!response.ok) throw new Error('Échec de la suppression.');
-  //   jobs.value = jobs.value.filter(job => job.id !== jobId); // Met à jour la liste localement
-  //   alert('Offre d\'emploi supprimée avec succès !');
-  // } catch (e) {
-  //   alert(`Erreur lors de la suppression: ${e.message}`);
-  // }
+  // Ici, vous feriez votre appel API DELETE
+  // Simulation de suppression
+  jobs.value = jobs.value.filter((job) => job.id !== jobId);
+  selectedJobs.value = selectedJobs.value.filter((id) => id !== jobId); // Retirer de la sélection
+  alert('Offre d\'emploi supprimée avec succès !');
+};
+
+const confirmBulkDelete = () => {
+  if (
+    confirm(
+      `Êtes-vous sûr de vouloir supprimer les ${selectedJobs.value.length} offres d'emploi sélectionnées ?`
+    )
+  ) {
+    bulkDeleteJobs();
+  }
+};
+
+const bulkDeleteJobs = async () => {
+  console.log(
+    `Suppression des offres d'emploi IDs : ${selectedJobs.value.join(', ')}`
+  );
+  // Ici, vous feriez votre appel API pour supprimer plusieurs éléments
+  // Par exemple : await fetch('/api/jobs/bulk-delete/', { method: 'POST', body: JSON.stringify({ ids: selectedJobs.value }) });
+
+  // Simulation de suppression de plusieurs éléments
+  jobs.value = jobs.value.filter((job) => !selectedJobs.value.includes(job.id));
+  selectedJobs.value = []; // Vider la sélection après suppression
+  alert('Offres d\'emploi sélectionnées supprimées avec succès !');
 };
 
 // --- Fonctions d'aide pour le style (badges de type et statut) ---
