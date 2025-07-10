@@ -1,48 +1,93 @@
-# departement/views.py
-
-from rest_framework import viewsets, filters
-from .models import Departement, Poste
-from .serializers import (DepartementListSerializer, DepartementCRUDSerializer,PosteListSerializer, PosteCRUDSerializer)
-from apps.users.permissions import IsAdminOrRH # Importe la permission personnalisée
-
-
-class DepartementViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet pour gérer les départements.
-    Seuls les administrateurs et les RH peuvent gérer les départements.
-    """
-    queryset = Departement.objects.all()
-    permission_classes = [IsAdminOrRH] # Seuls les admins et RH peuvent accéder à ce ViewSet
-
-    def get_serializer_class(self):
-        """
-        Retourne le serializer approprié en fonction de l'action de la vue.
-        - Pour la liste, utilise DepartementListSerializer.
-        - Pour les autres actions, utilise DepartementCRUDSerializer.
-        """
-        if self.action == 'list':
-            return DepartementListSerializer
-        return DepartementCRUDSerializer
-    
 # postes/views.py
 
-class PosteViewSet(viewsets.ModelViewSet):
+from rest_framework import generics, filters, permissions
+from .models import Departement, Competence, Poste
+from .serializers import (
+    DepartementListSerializer, DepartementCRUDSerializer,
+    CompetenceListSerializer, CompetenceCRUDSerializer,
+    PosteListSerializer, PosteCRUDSerializer
+)
+from apps.users.permissions import IsAdminOrRH # Importe la permission personnalisée
+
+# --- Vues pour Departement ---
+
+class DepartementListCreateAPIView(generics.ListCreateAPIView):
     """
-    ViewSet pour gérer les postes.
-    Seuls les administrateurs et les RH peuvent gérer les postes.
+    Vue pour lister et créer des départements.
+    Accessible uniquement par les admins et les RH.
     """
-    queryset = Poste.objects.all()
-    permission_classes = [IsAdminOrRH] # Seuls les admins et RH peuvent accéder à ce ViewSet
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter] # Active la recherche et le tri
-    search_fields = ['nom', 'description', 'departement__nom'] # Champs sur lesquels la recherche est possible
-    ordering_fields = ['nom', 'salaire_mensuel', 'departement__nom'] # Champs sur lesquels le tri est possible
+    queryset = Departement.objects.all().order_by('nom')
+    permission_classes = [IsAdminOrRH]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['nom', 'description', 'code_id', 'responsable', 'location', 'email']
+    ordering_fields = ['nom', 'code_id', 'responsable', 'created_at']
 
     def get_serializer_class(self):
-        """
-        Retourne le serializer approprié en fonction de l'action de la vue.
-        - Pour la liste, utilise PosteListSerializer.
-        - Pour les autres actions, utilise PosteCRUDSerializer.
-        """
-        if self.action == 'list':
-            return PosteListSerializer
-        return PosteCRUDSerializer    
+        if self.request.method == 'POST':
+            return DepartementCRUDSerializer
+        return DepartementListSerializer
+
+class DepartementRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Vue pour récupérer, mettre à jour et supprimer un département spécifique.
+    Accessible uniquement par les admins et les RH.
+    """
+    queryset = Departement.objects.all()
+    serializer_class = DepartementCRUDSerializer
+    permission_classes = [IsAdminOrRH]
+
+
+# --- Vues pour Competence ---
+
+class CompetenceListCreateAPIView(generics.ListCreateAPIView):
+    """
+    Vue pour lister et créer des compétences.
+    Accessible uniquement par les admins et les RH.
+    """
+    queryset = Competence.objects.all().order_by('nom')
+    permission_classes = [IsAdminOrRH]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['nom', 'description']
+    ordering_fields = ['nom']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CompetenceCRUDSerializer
+        return CompetenceListSerializer
+
+class CompetenceRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Vue pour récupérer, mettre à jour et supprimer une compétence spécifique.
+    Accessible uniquement par les admins et les RH.
+    """
+    queryset = Competence.objects.all()
+    serializer_class = CompetenceCRUDSerializer
+    permission_classes = [IsAdminOrRH]
+
+
+# --- Vues pour Poste ---
+
+class PosteListCreateAPIView(generics.ListCreateAPIView):
+    """
+    Vue pour lister et créer des postes.
+    Accessible uniquement par les admins et les RH.
+    """
+    queryset = Poste.objects.all().order_by('nom')
+    permission_classes = [IsAdminOrRH]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['nom', 'description', 'departement__nom', 'statut', 'type_contrat', 'competences__nom']
+    ordering_fields = ['nom', 'salaire_mensuel', 'departement__nom', 'created_at']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return PosteCRUDSerializer
+        return PosteListSerializer
+
+class PosteRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Vue pour récupérer, mettre à jour et supprimer un poste spécifique.
+    Accessible uniquement par les admins et les RH.
+    """
+    queryset = Poste.objects.all()
+    serializer_class = PosteCRUDSerializer
+    permission_classes = [IsAdminOrRH]

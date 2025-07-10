@@ -1,12 +1,9 @@
 # users/urls.py
 
-from rest_framework.routers import DefaultRouter
-from .views import UserViewSet
+from django.urls import path
+from .views import UserListCreateAPIView, UserRetrieveUpdateDestroyAPIView
 
-# Crée un routeur par défaut pour enregistrer les ViewSets
-router = DefaultRouter()
-# Enregistre UserViewSet avec le préfixe 'users'
-router.register(r'users', UserViewSet)
-
-# Les motifs d'URL sont générés automatiquement par le routeur
-urlpatterns = router.urls
+urlpatterns = [
+    path('users/', UserListCreateAPIView.as_view(), name='user-list-create'),
+    path('users/<int:pk>/', UserRetrieveUpdateDestroyAPIView.as_view(), name='user-detail-update-delete'),
+]

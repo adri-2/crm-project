@@ -1,14 +1,22 @@
-# departement/urls.py
+# postes/urls.py
 
-from rest_framework.routers import DefaultRouter
-from .views import DepartementViewSet, PosteViewSet
+from django.urls import path
+from .views import (
+    DepartementListCreateAPIView, DepartementRetrieveUpdateDestroyAPIView,
+    CompetenceListCreateAPIView, CompetenceRetrieveUpdateDestroyAPIView,
+    PosteListCreateAPIView, PosteRetrieveUpdateDestroyAPIView
+)
 
-# Crée un routeur par défaut pour enregistrer les ViewSets
-router = DefaultRouter()
-# Enregistre DepartementViewSet avec le préfixe 'departements'
-router.register(r'departements', DepartementViewSet)
-# Enregistre PosteViewSet avec le préfixe 'postes'
-router.register(r'postes', PosteViewSet)
+urlpatterns = [
+    # URLs pour Departement (maintenant dans l'app postes)
+    path('departements/', DepartementListCreateAPIView.as_view(), name='departement-list-create'),
+    path('departements/<int:pk>/', DepartementRetrieveUpdateDestroyAPIView.as_view(), name='departement-detail-update-delete'),
 
-# Les motifs d'URL sont générés automatiquement par le routeur
-urlpatterns = router.urls
+    # URLs pour Competence
+    path('competences/', CompetenceListCreateAPIView.as_view(), name='competence-list-create'),
+    path('competences/<int:pk>/', CompetenceRetrieveUpdateDestroyAPIView.as_view(), name='competence-detail-update-delete'),
+
+    # URLs pour Poste
+    path('postes/', PosteListCreateAPIView.as_view(), name='poste-list-create'),
+    path('postes/<int:pk>/', PosteRetrieveUpdateDestroyAPIView.as_view(), name='poste-detail-update-delete'),
+]

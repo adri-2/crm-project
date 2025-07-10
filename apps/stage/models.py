@@ -4,6 +4,7 @@ from django.db import models
 from apps.employees.models import Employe # Importe le modèle Employe
 from apps.postes.models import Poste # Importe le modèle Poste
 from django.utils.text import slugify # Utilisé pour générer le username unique
+import uuid # Utilisé pour générer un matricule unique
 
 class Stagiaire(models.Model):
     """
@@ -23,7 +24,15 @@ class Stagiaire(models.Model):
     last_name = models.CharField(max_length=100, verbose_name="Nom")
     # Le champ 'username' est généré automatiquement et est unique pour chaque stagiaire
     username = models.CharField(max_length=100, unique=True, blank=True, verbose_name="Nom d'utilisateur unique")
-    matricule = models.CharField(max_length=20, unique=True, verbose_name="Matricule")
+    matricule = models.CharField(
+        max_length=6,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name="Matricule",
+        help_text="Matricule de l'utilisateur (généré automatiquement)"
+    )
+   
     poste = models.ForeignKey(Poste, on_delete=models.PROTECT, verbose_name="Poste")
     encadreur = models.ForeignKey(
         Employe,
@@ -74,6 +83,15 @@ class Stagiaire(models.Model):
                 num += 1
             self.username = username # Assigne le 'username' unique
         super().save(*args, **kwargs) # Appelle la méthode save originale du modèle
+    
+    def generate_matricule(self):
+        # Génère un UUID4, prend les 6 premiers caractères hexadécimaux
+        return uuid.uuid4().hex[:6].upper()
+
+    def save(self, *args, **kwargs):
+        if not self.matricule:
+            self.matricule = self.generate_matricule()
+        super().save(*args, **kwargs)
 
 
 class PeriodeStage(models.Model):

@@ -1,10 +1,9 @@
 # employees/serializers.py
-
 from rest_framework import serializers
 from .models import Employe
 from apps.users.models import User # Importe le modèle User
 from apps.users.serializers import UserListSerializer # Importe le serializer User
-from apps.postes.models import Poste # Importe le modèle Poste
+from apps.postes.models import Poste # Importe le modèle Poste (maintenant incluant Departement et Competence)
 from apps.postes.serializers import PosteListSerializer # Importe son serializer
 
 class EmployeListSerializer(serializers.ModelSerializer):
@@ -39,7 +38,11 @@ class EmployeCRUDSerializer(serializers.ModelSerializer):
     """
     # Le champ 'user' est une clé étrangère qui attend l'ID d'un utilisateur existant
     # Le queryset est défini dynamiquement dans __init__ pour éviter les problèmes de dépendance circulaire
-    user = serializers.PrimaryKeyRelatedField(queryset=Employe.objects.all(), required=True) 
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True) 
+    # Le champ 'poste' est une clé étrangère qui attend l'ID d'un poste existant
+    poste = serializers.PrimaryKeyRelatedField(queryset=Poste.objects.all(), required=True)
+    # Le champ 'chef' est une clé étrangère vers un autre employé, peut être nul
+    chef = serializers.PrimaryKeyRelatedField(queryset=Employe.objects.all(), allow_null=True, required=False)
 
     class Meta:
         model = Employe

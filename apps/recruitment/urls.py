@@ -1,14 +1,20 @@
 # recruitment/urls.py
 
-from rest_framework.routers import DefaultRouter
-from .views import OffreEmploiViewSet, CandidatViewSet
+from django.urls import path
+from .views import (
+    OffreEmploiListCreateAPIView, OffreEmploiRetrieveUpdateDestroyAPIView,
+    CandidatListCreateAPIView, CandidatRetrieveUpdateDestroyAPIView,
+    CandidatAcceptAPIView, CandidatRejectAPIView
+)
 
-# Crée un routeur par défaut pour enregistrer les ViewSets
-router = DefaultRouter()
-# Enregistre OffreEmploiViewSet avec le préfixe 'offres-emploi'
-router.register(r'offres-emploi', OffreEmploiViewSet)
-# Enregistre CandidatViewSet avec le préfixe 'candidats'
-router.register(r'candidats', CandidatViewSet)
+urlpatterns = [
+    # URLs pour OffreEmploi
+    path('offres-emploi/', OffreEmploiListCreateAPIView.as_view(), name='offre-emploi-list-create'),
+    path('offres-emploi/<int:pk>/', OffreEmploiRetrieveUpdateDestroyAPIView.as_view(), name='offre-emploi-detail-update-delete'),
 
-# Les motifs d'URL sont générés automatiquement par le routeur
-urlpatterns = router.urls
+    # URLs pour Candidat
+    path('candidats/', CandidatListCreateAPIView.as_view(), name='candidat-list-create'),
+    path('candidats/<int:pk>/', CandidatRetrieveUpdateDestroyAPIView.as_view(), name='candidat-detail-update-delete'),
+    path('candidats/<int:pk>/accept/', CandidatAcceptAPIView.as_view(), name='candidat-accept'), # Action personnalisée
+    path('candidats/<int:pk>/reject/', CandidatRejectAPIView.as_view(), name='candidat-reject'), # Action personnalisée
+]

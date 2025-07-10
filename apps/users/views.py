@@ -1,24 +1,30 @@
 # users/views.py
-
-from rest_framework import viewsets, permissions
+from rest_framework import generics, permissions, filters
 from .models import User
 from .serializers import UserListSerializer, UserCRUDSerializer
-from .permissions import IsAdminOrRH # Importe la permission personnalisée
+from .permissions import IsAdminOrRH
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserListCreateAPIView(generics.ListCreateAPIView):
     """
-    ViewSet pour gérer les utilisateurs.
-    Seuls les administrateurs et les RH peuvent gérer les utilisateurs.
+    Vue pour lister et créer des utilisateurs.
+    Accessible uniquement par les admins et les RH.
     """
-    queryset = User.objects.all().order_by('-date_joined') # Ordonne par date d'inscription
-    permission_classes = [IsAdminOrRH] # Seuls les admins et RH peuvent accéder à ce ViewSet
+    queryset = User.objects.all().order_by('-date_joined')
+    permission_classes = [IsAdminOrRH]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['username', 'email', 'first_name', 'last_name', 'role']
+    ordering_fields = ['username', 'email', 'first_name', 'last_name', 'role', 'date_joined']
 
     def get_serializer_class(self):
-        """
-        Retourne le serializer approprié en fonction de l'action de la vue.
-        - Pour la liste, utilise UserListSerializer (lecture simple).
-        - Pour les autres actions (création, détail, mise à jour, suppression), utilise UserCRUDSerializer.
-        """
-        if self.action == 'list':
-            return UserListSerializer
-        return UserCRUDSerializer
+        if self.request.method == 'POST':
+            return UserCRUDSerializer # Pour la création
+        return UserListSerializer # Pour la liste
+
+class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Vue pour récupérer, mettre à jour et supprimer un utilisateur spécifique.
+    Accessible uniquement par les admins et les RH.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserCRUDSerializer
+    permission_classes = [IsAdminOrRH]

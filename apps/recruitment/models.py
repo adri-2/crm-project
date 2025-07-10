@@ -29,7 +29,7 @@ class OffreEmploi(models.Model):
     )
     generee_par_ia = models.BooleanField(default=False, verbose_name="Générée par IA")
     # Utilise une clé étrangère vers le modèle Departement pour normaliser les départements
-    departement = models.ForeignKey(Departement, on_delete=models.PROTECT, verbose_name="Département")
+    # departement = models.ForeignKey(Departement, on_delete=models.PROTECT, verbose_name="Département")
     # Utilise une clé étrangère vers le modèle Poste pour normaliser les postes
     poste = models.ForeignKey(Poste, on_delete=models.PROTECT, verbose_name="Poste")
     # Utilise une relation ManyToMany pour les compétences, permettant de lier plusieurs compétences    

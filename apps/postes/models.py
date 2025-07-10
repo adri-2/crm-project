@@ -1,7 +1,7 @@
-# departement/models.py
+# postes/models.py
 
 from django.db import models
-
+from django.utils import timezone # Importation nécessaire pour les validations de date si réactivées
 
 class Competence(models.Model):
     """
@@ -28,9 +28,6 @@ class Departement(models.Model):
     location = models.CharField(max_length=255, blank=True, null=True, verbose_name="Emplacement du département")
     phone = models.CharField(max_length=15, blank=True, null=True, verbose_name="Téléphone du département")
     email = models.EmailField(blank=True, null=True, verbose_name="Email du département")
-    """    Description du département, permettant de fournir des informations supplémentaires.
-    """
-    
     description = models.TextField(blank=True, null=True, verbose_name="Description")
     
     created_at = models.DateTimeField(auto_now_add=True) # Date de création automatique
@@ -44,19 +41,15 @@ class Departement(models.Model):
     def __str__(self):
         """Retourne une représentation en chaîne de caractères du département."""
         return self.nom
-    
-    
-# postes/models.py
-"""Modèle représentant un poste au sein de l'entreprise.
-Ce modèle est lié au modèle Departement pour normaliser les départements.
-Il inclut des informations sur le poste, telles que le nom, la description, le responsable,
-le département, le salaire, le niveau d'expérience, les compétences requises, le statut,        
-le lieu de travail et le type de contrat.
-"""
+
 
 class Poste(models.Model):
     """
     Modèle représentant un poste au sein de l'entreprise.
+    Ce modèle est lié au modèle Departement pour normaliser les départements.
+    Il inclut des informations sur le poste, telles que le nom, la description, le responsable,
+    le département, le salaire, le niveau d'expérience, les compétences requises, le statut,
+    le lieu de travail et le type de contrat.
     """
     NIVEAU_EXPERIENCE_CHOICES = [
         ("junior", "Junior"),
@@ -91,13 +84,15 @@ class Poste(models.Model):
         default="junior",
         verbose_name="Niveau d'expérience",
     )
-    competences = models.ManyToManyField('Competence', blank=True, verbose_name="Compétences requises")
+    # Utilise ManyToManyField pour les compétences
+    competences = models.ManyToManyField(Competence, blank=True, verbose_name="Compétences requises")
     statut = models.CharField(
         max_length=20,
         choices=STATUT_CHOICES,
         default="actif",
         verbose_name="Statut du poste",
     )
+    # date_debut et date_fin sont commentés comme dans votre code fourni
     # date_debut = models.DateField(blank=True, null=True, verbose_name="Date de début")
     # date_fin = models.DateField(blank=True, null=True, verbose_name="Date de fin")
     lieu_travail = models.CharField(
@@ -130,4 +125,4 @@ class Poste(models.Model):
         Propriété qui retourne la liste des employés associés à ce poste.
         Utilise le related_name par défaut 'employe_set'.
         """
-        return self.employe_set.all()    
+        return self.employe_set.all()

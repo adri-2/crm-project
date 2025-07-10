@@ -91,7 +91,7 @@
                 <transition name="fade">
                   <div
                     v-if="showMenu"
-                    class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-lg bg-white/90 py-2 shadow-2xl ring-1 ring-black/10 backdrop-blur transition-all duration-200"
+                    class="absolute  right-0 z-10 mt-2 w-48 origin-top-right rounded-lg bg-white/90 py-2 shadow-2xl ring-1 ring-black/10 backdrop-blur transition-all duration-200"
                     role="menu"
                     aria-orientation="vertical"
                     aria-labelledby="user-menu-button"

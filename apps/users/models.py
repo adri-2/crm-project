@@ -2,6 +2,7 @@
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+import uuid
 
 class User(AbstractUser):
     """
@@ -21,6 +22,27 @@ class User(AbstractUser):
         verbose_name="Rôle",
         help_text="Rôle de l'utilisateur dans l'application"
     )
+    email = models.EmailField(max_length=100,unique=True)
+    def generate_matricule(self):
+        # Génère un UUID4, prend les 6 premiers caractères hexadécimaux
+        return uuid.uuid4().hex[:6].upper()
+
+    matricule = models.CharField(
+        max_length=6,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name="Matricule",
+        help_text="Matricule de l'utilisateur (généré automatiquement)"
+    )
+
+    def save(self, *args, **kwargs):
+        if not self.matricule:
+            self.matricule = self.generate_matricule()
+        super().save(*args, **kwargs)
+    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     class Meta:
         verbose_name = "Utilisateur"

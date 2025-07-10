@@ -1,84 +1,83 @@
-# departement/serializers.py
+# postes/serializers.py
 
 from rest_framework import serializers
-from .models import Departement, Poste
+from .models import Departement, Competence, Poste
 
+# Serializers pour Departement (maintenant dans l'app postes)
 class DepartementListSerializer(serializers.ModelSerializer):
     """
     Serializer pour la liste des départements (lecture simple).
     """
     class Meta:
         model = Departement
-        fields = ['id', 'nom','code_id','responsable','description'] # N'affiche que l'ID et le nom pour la liste
+        fields = ['id', 'nom', 'code_id', 'responsable'] # Champs spécifiés dans votre code fourni
 
 class DepartementCRUDSerializer(serializers.ModelSerializer):
     """
     Serializer pour le CRUD des départements.
-    Permet de créer, lire, mettre à jour et supprimer des départements.
     """
     class Meta:
         model = Departement
-        fields = '__all__' # Inclut tous les champs du modèle
-        read_only_fields = ['created_at', 'updated_at'] # Ces champs sont gérés automatiquement par Django
-        
-        
-        
-# postes/serializers.py
+        fields = '__all__'
+        read_only_fields = ['created_at', 'updated_at']
 
 
-"""
-    Serializer pour les détails d'un poste.
-    Inclut tous les champs du modèle Poste et affiche le département avec ses détails.          
-"""
+# Serializers pour Competence
+class CompetenceListSerializer(serializers.ModelSerializer):
+    """
+    Serializer pour la liste des compétences (lecture simple).
+    """
+    class Meta:
+        model = Competence
+        fields = ['id', 'nom']
 
+class CompetenceCRUDSerializer(serializers.ModelSerializer):
+    """
+    Serializer pour le CRUD des compétences.
+    """
+    class Meta:
+        model = Competence
+        fields = '__all__'
+
+
+# Serializers pour Poste
 class PosteListSerializer(serializers.ModelSerializer):
     """
     Serializer pour la liste des postes (lecture simple).
-    Affiche le nom du département en utilisant un serializer imbriqué.
+    Affiche les détails du département et les noms des compétences.
     """
     departement = DepartementListSerializer(read_only=True) # Affiche les détails du département
+    competences = CompetenceListSerializer(many=True, read_only=True) # Affiche les noms des compétences
 
     class Meta:
         model = Poste
         fields = [
             'id', 'nom', 'departement', 'salaire_mensuel', 
-            'niveau_experience', 'statut', 'lieu_travail', 'type_contrat'
+            'niveau_experience', 'statut', 'lieu_travail', 'type_contrat',
+            'competences'
         ]
-
-
-
 
 class PosteCRUDSerializer(serializers.ModelSerializer):
     """
     Serializer pour le CRUD des postes.
-    Gère la validation des dates et l'unicité du nom du poste.
+    Gère la validation du nom du poste et les relations.
     """
+    # Pour la création/mise à jour, on attend l'ID du département
+    departement = serializers.PrimaryKeyRelatedField(queryset=Departement.objects.all())
+    # Pour la création/mise à jour des compétences, on attend les IDs des compétences
+    competences = serializers.PrimaryKeyRelatedField(queryset=Competence.objects.all(), many=True, required=False)
+
     class Meta:
         model = Poste
-        fields = '__all__' # Inclut tous les champs pour le CRUD
+        fields = '__all__'
         read_only_fields = ['created_at', 'updated_at'] # Ces champs sont en lecture seule
-
-    def validate(self, data):
-        """
-        Valide que la date de fin est après la date de début si les deux sont présentes.
-        """
-        date_debut = data.get('date_debut')
-        date_fin = data.get('date_fin')
-
-        if date_debut and date_fin and date_fin < date_debut:
-            raise serializers.ValidationError(
-                {"date_fin": "La date de fin ne peut pas être antérieure à la date de début."}
-            )
-        return data
 
     def validate_nom(self, value):
         """
         Valide l'unicité du nom du poste.
         """
-        # Lors d'une mise à jour, si le nom n'a pas changé, pas besoin de vérifier l'unicité
         if self.instance and self.instance.nom == value:
             return value
-        # Vérifie si un poste avec ce nom existe déjà
         if Poste.objects.filter(nom=value).exists():
             raise serializers.ValidationError("Un poste avec ce nom existe déjà.")
-        return value       
+        return value
