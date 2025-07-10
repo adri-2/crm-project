@@ -9,15 +9,16 @@ import JobOfferForm from "@/views/recruitment/JobOfferForm.vue";
 import JobOfferList from "@/views/recruitment/JobOfferList.vue";
 import CandidateList from "@/views/recruitment/CandidateList.vue";
 import CandidatForm from "@/views/recruitment/CandidatForm.vue";
+import LoginView from "@/views/LoginView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // {
-    //   path: "/",
-    //   name: "home",
-    //   component: HomeView,
-    // },
+    {
+      path: "/",
+      name: "login",
+      component: () => import("../views/LoginView.vue"),
+    },
     {
       path: "/about",
       name: "about",
@@ -47,7 +48,7 @@ const router = createRouter({
       component: JobList,
     },
     {
-      path: "/",
+      path: "/dashboard",
       name: "dashboard",
       component: DashBoard,
     },
@@ -71,6 +72,18 @@ const router = createRouter({
       name: "recruitment-candidates-new",
       component: CandidatForm,
     },
+    //
+
+    //  {
+    //   path: "/stagiaire/list",
+    //   name: "stagiaire-list",
+    //   component: CandidatForm,
+    // },
+    //  {
+    //   path: "/stagiaire/new",
+    //   name: "stagiaire-new",
+    //   component: CandidatForm,
+    // },
   ],
 });
 

@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 openai = "*"
 pypdf = "*"
+google-generativeai = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
