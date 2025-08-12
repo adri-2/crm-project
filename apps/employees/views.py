@@ -89,10 +89,12 @@ class EmployeRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
         if self.action in ['list', 'create']:
             # Seuls les admins et RH peuvent lister et créer des employés
             self.permission_classes = [IsAdminOrRH]
+            pass
         elif self.action in ['retrieve', 'update', 'partial_update', 'destroy']:
             # Pour les détails, mise à jour et suppression :
             # Admin/RH ou le propriétaire de l'objet Employe
             self.permission_classes = [IsEmployeeOwnerOrAdminOrRH]
+            pass
         else:
             # Pour toute autre action non spécifiée, l'utilisateur doit être authentifié
             self.permission_classes = [permissions.IsAuthenticated] 

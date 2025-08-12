@@ -251,13 +251,13 @@ const fetchUsers = async () => {
     // --- SIMULATION D'APPEL API ---
     // En production, vous feriez un appel à votre API Django ici
     // Exemple avec fetch :
-    const response = await fetch('/api/users/');
+    const response = await fetch('http://localhost:8000/api/users/');
     if (!response.ok) throw new Error('Échec de la récupération des utilisateurs.');
     const data = await response.json();
     users.value = data;
 
     // Données fictives pour la démo
-    await new Promise(resolve => setTimeout(resolve, 800)); // Simule un délai réseau
+    // await new Promise(resolve => setTimeout(resolve, 800)); // Simule un délai réseau
     // users.value = [
     //   { id: '1', name: "Lindsay Walton", title: "Développeur Front-end", email: "lindsay.walton@example.com", role: "Membre", avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80', phone: "+33 6 12 34 56 78", department: "Technique", },
     //   { id: '2', name: "Courtney Henry", title: "Designer", email: "courtney.henry@example.com", role: "Admin", avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80', phone: "+33 6 12 34 56 78", department: "Technique", },
