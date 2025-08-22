@@ -27,6 +27,11 @@ export default [
       component: AboutView,
     },
     {
+      path: "/dashboard",
+      name: "dashboard",
+      component: DashBoard,
+    },
+    {
         path: "/user",
         name: "user",
         children: [
